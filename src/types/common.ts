@@ -1,0 +1,21 @@
+export interface SuccessResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data?: any;
+}
+
+export interface ErrorResponse {
+  success:boolean, 
+  statusCode:number,
+  message:string,
+  errors?: any
+}
+
+export interface ApiErrorResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  code: number;
+  details?: any;
+}
