@@ -24,9 +24,9 @@ export const validateSession = async (sessionId: string) => {
   }
 
   return {
-    user_id: session?.user_id,
+    userId: session?.userId,
     email: session?.email,
-    session_id: session?.session_id,
+    sessionId: session?.sessionId,
     role: session?.role,
   };
 };
@@ -43,19 +43,19 @@ export const loginUser = async (email: string, password: string) => {
 
   //Delete any old session of user if exists
 
-  const oldSession = await getOldSessionByUserId(user.user_id);
-  if (oldSession) await deleteSession(oldSession.session_id);
+  const oldSession = await getOldSessionByUserId(user.userId);
+  if (oldSession) await deleteSession(oldSession.sessionId);
 
   //Create new session for the user
 
-  const { sessionId } = await createSession(user.user_id);
+  const { sessionId } = await createSession(user.userId);
   const csrfToken = generateCsrfToken();
 
   const sessionCookie = createSessionCookie(sessionId);
   const csrfCookie = createCsrfCookie(csrfToken);
 
   const userData = {
-    user_id: user.user_id,
+    userId: user.userId,
     email: user.email,
     name: user.name,
   };
@@ -79,7 +79,7 @@ export const registerUser = async (
   const user = await registerUserData(email, passwordHash, name);
 
   //Create new session for the user
-  const { sessionId } = await createSession(user.user_id);
+  const { sessionId } = await createSession(user.userId);
   const csrfToken = generateCsrfToken();
   const csrfCookie = createCsrfCookie(csrfToken);
   const sessionCookie = createSessionCookie(sessionId);
