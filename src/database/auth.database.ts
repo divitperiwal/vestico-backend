@@ -26,7 +26,8 @@ export const getSession = async (sessionId: string) => {
       SELECT 
       s.session_id as "session_id", 
       s.expires_at as "expires_at", 
-      s.user_id as "user_id" 
+      s.user_id as "user_id",
+      u.email as "email"
       FROM sessions s
       INNER JOIN users  u
         ON s.user_id = u.user_id
