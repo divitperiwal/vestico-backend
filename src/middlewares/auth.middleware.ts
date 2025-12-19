@@ -14,6 +14,14 @@ export const authMiddleware = async (
   const data = await validateSession(sessionId);
   if (!data) throw new ApiError("Unauthorized", 401);
 
-  req.user = data;
+  if (!data.userId || !data.email || !data.sessionId || !data.role) {
+    throw new ApiError("Unauthorized", 401);
+  }
+  req.user = {
+    userId: data.userId,
+    email: data.email,
+    sessionId: data.sessionId,
+    role: data.role,
+  };
   next();
 };
