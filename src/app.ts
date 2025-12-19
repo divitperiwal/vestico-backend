@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { cookieOptions, corsOptions } from "@/constant.js";
-import authRoutes from "@/routes/auth.routes.js";
+import authRoutes from "@/routes/auth.route.js";
 import { sendSuccess } from "./utils/response.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 const app = express();
