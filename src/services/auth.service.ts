@@ -26,6 +26,8 @@ export const validateSession = async (sessionId: string) => {
   return {
     user_id: session?.user_id,
     email: session?.email,
+    session_id: session?.session_id,
+    role: session?.role,
   };
 };
 

@@ -27,7 +27,8 @@ export const getSession = async (sessionId: string) => {
       s.session_id as "session_id", 
       s.expires_at as "expires_at", 
       s.user_id as "user_id",
-      u.email as "email"
+      u.email as "email",
+      u.role as "role"
       FROM sessions s
       INNER JOIN users  u
         ON s.user_id = u.user_id
@@ -96,9 +97,9 @@ export const registerUserData = async (
   try {
     const result = await db`
     INSERT INTO users
-    (email, password, name)
+    (email, password, name, role)
     VALUES
-    (${email}, ${passwordHash}, ${name})
+    (${email}, ${passwordHash}, ${name}, 'user')
     RETURNING user_id, email, name
     `;
 
