@@ -1,5 +1,7 @@
-import { db } from "@/config/db.config.js";
+import { db } from "@/config/drizzle.config.js";
 import { ApiError } from "@/utils/ApiError.js";
+import { sessions, users } from "@/database/schema/index.js";
+import { eq } from "drizzle-orm";
 
 export const saveSession = async (
   sessionId: string,
@@ -7,14 +9,16 @@ export const saveSession = async (
   expiresAt: Date
 ) => {
   try {
-    const result = await db`
-    INSERT 
-    INTO sessions 
-    (session_id, user_id, expires_at) 
-    VALUES (${sessionId}, ${userId}, ${expiresAt}) 
-    RETURNING *`;
+    const result = await db
+      .insert(sessions)
+      .values({ sessionId, userId, expiresAt })
+      .returning({
+        sessionId: sessions.sessionId,
+        userId: sessions.userId,
+        expiresAt: sessions.expiresAt,
+      });
 
-    return result;
+    return result[0];
   } catch (error) {
     throw new ApiError("Failed to save session", 500);
   }
@@ -22,19 +26,18 @@ export const saveSession = async (
 
 export const getSession = async (sessionId: string) => {
   try {
-    const result = await db`
-      SELECT 
-      s.session_id as "session_id", 
-      s.expires_at as "expires_at", 
-      s.user_id as "user_id",
-      u.email as "email",
-      u.role as "role"
-      FROM sessions s
-      INNER JOIN users  u
-        ON s.user_id = u.user_id
-      WHERE s.session_id = ${sessionId}
-      LIMIT 1
-      `;
+    const result = await db
+      .select({
+        sessionId: sessions.sessionId,
+        expiresAt: sessions.expiresAt,
+        userId: sessions.userId,
+        email: users.email,
+        role: users.role,
+      })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.userId))
+      .where(eq(sessions.sessionId, sessionId))
+      .limit(1);
 
     if (result.length === 0) return null;
 
@@ -46,10 +49,10 @@ export const getSession = async (sessionId: string) => {
 
 export const deleteSession = async (sessionId: string) => {
   try {
-    await db`
-      DELETE FROM sessions 
-      WHERE session_id = ${sessionId}
-    `;
+    const result = await db
+      .delete(sessions)
+      .where(eq(sessions.sessionId, sessionId));
+    return result;
   } catch (error) {
     throw new ApiError("Failed to delete session", 500);
   }
@@ -57,12 +60,13 @@ export const deleteSession = async (sessionId: string) => {
 
 export const getOldSessionByUserId = async (userId: string) => {
   try {
-    const result = await db`
-      SELECT session_id
-      FROM sessions
-      WHERE user_id = ${userId}
-      LIMIT 1
-    `;
+    const result = await db
+      .select({
+        sessionId: sessions.sessionId,
+      })
+      .from(sessions)
+      .where(eq(sessions.userId, userId))
+      .limit(1);
     if (result.length === 0) return null;
     return result[0];
   } catch (error) {
@@ -72,16 +76,17 @@ export const getOldSessionByUserId = async (userId: string) => {
 
 export const getUserWithPassword = async (email: string) => {
   try {
-    const result = await db`
-      SELECT 
-      user_id, 
-      email, 
-      password,
-      name
-      FROM users 
-      WHERE email = ${email}
-      LIMIT 1
-    `;
+    const result = await db
+      .select({
+        userId: users.userId,
+        email: users.email,
+        password: users.password,
+        name: users.name,
+      })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
     if (result.length === 0) return null;
     return result[0];
   } catch (error) {
@@ -95,13 +100,16 @@ export const registerUserData = async (
   name: string
 ) => {
   try {
-    const result = await db`
-    INSERT INTO users
-    (email, password, name, role)
-    VALUES
-    (${email}, ${passwordHash}, ${name}, 'user')
-    RETURNING user_id, email, name
-    `;
+    const result = await db
+      .insert(users)
+      .values({ email, password: passwordHash, name, role: "user" })
+      .returning({
+        userId: users.userId,
+        email: users.email,
+        name: users.name,
+      });
+    if (result.length === 0)
+      throw new ApiError("User registration failed", 500);
 
     return result[0];
   } catch (error) {
