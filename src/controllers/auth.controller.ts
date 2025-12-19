@@ -10,9 +10,10 @@ import {
   readSessionCookie,
 } from "@/utils/cookies.js";
 import { sendSuccess } from "@/utils/response.js";
+import { LoginUserSchema, RegisterUserSchema } from "@/types/validation/auth.validation.js";
 
 export const handleLogin = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = LoginUserSchema.parse(req.body);
   const { sessionCookie, csrfCookie, user } = await loginUser(email, password);
 
   res.setHeader("Set-Cookie", [sessionCookie, csrfCookie]);
@@ -20,7 +21,7 @@ export const handleLogin = asyncHandler(async (req, res) => {
 });
 
 export const handleRegister = asyncHandler(async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name } = RegisterUserSchema.parse(req.body);
   const { sessionCookie, csrfCookie, user } = await registerUser(
     email,
     password,
