@@ -1,4 +1,7 @@
-import { generateSessionId } from "@/utils/sessionId.js";
+import {
+  generateCsrfToken,
+  generateSessionId,
+} from "@/utils/tokenGeneration.js";
 import { SESSION_DURATION_MS } from "@/constant.js";
 import {
   deleteSession,
@@ -10,7 +13,7 @@ import {
 } from "@/database/auth.database.js";
 import { ApiError } from "@/utils/ApiError.js";
 import { comparePassword, hashPassword } from "@/utils/hashing.js";
-import { createSessionCookie } from "@/utils/cookies.js";
+import { createCsrfCookie, createSessionCookie } from "@/utils/cookies.js";
 
 export const validateSession = async (sessionId: string) => {
   const session = await getSession(sessionId);
@@ -44,8 +47,10 @@ export const loginUser = async (email: string, password: string) => {
   //Create new session for the user
 
   const { sessionId } = await createSession(user.user_id);
+  const csrfToken = generateCsrfToken();
 
   const sessionCookie = createSessionCookie(sessionId);
+  const csrfCookie = createCsrfCookie(csrfToken);
 
   const userData = {
     user_id: user.user_id,
@@ -53,7 +58,7 @@ export const loginUser = async (email: string, password: string) => {
     name: user.name,
   };
 
-  return { sessionCookie, user: userData };
+  return { sessionCookie, csrfCookie, user: userData };
 };
 
 export const registerUser = async (
@@ -73,9 +78,11 @@ export const registerUser = async (
 
   //Create new session for the user
   const { sessionId } = await createSession(user.user_id);
+  const csrfToken = generateCsrfToken();
+  const csrfCookie = createCsrfCookie(csrfToken);
   const sessionCookie = createSessionCookie(sessionId);
 
-  return { sessionCookie, user };
+  return { sessionCookie, csrfCookie, user };
 };
 
 export const logoutUser = async (sessionId: string) => {
