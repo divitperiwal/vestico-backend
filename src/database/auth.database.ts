@@ -1,6 +1,10 @@
 import { db } from "@/config/drizzle.config.js";
 import { ApiError } from "@/utils/ApiError.js";
-import { sessions, users } from "@/database/schema/index.js";
+import {
+  broker_credentials,
+  sessions,
+  users,
+} from "@/database/schema/index.js";
 import { eq } from "drizzle-orm";
 
 export const saveSession = async (
@@ -114,5 +118,25 @@ export const registerUserData = async (
     return result[0];
   } catch (error) {
     throw new ApiError("Failed to register user", 500);
+  }
+};
+
+export const initializeBrokerCredentials = async (userId: string) => {
+  try {
+    await db
+      .insert(broker_credentials)
+      .values({
+        broker: "mstock",
+        userId: userId,
+        credentials: null,
+      })
+      .returning({
+        broker: broker_credentials.broker,
+        userId: broker_credentials.userId,
+      });
+
+    return;
+  } catch (error) {
+    throw new ApiError("Failed to initialize broker credentials", 500);
   }
 };

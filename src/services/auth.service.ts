@@ -8,6 +8,7 @@ import {
   getOldSessionByUserId,
   getSession,
   getUserWithPassword,
+  initializeBrokerCredentials,
   registerUserData,
   saveSession,
 } from "@/database/auth.database.js";
@@ -77,6 +78,8 @@ export const registerUser = async (
 
   const passwordHash = await hashPassword(password);
   const user = await registerUserData(email, passwordHash, name);
+  //Initialize Broker Credentials for the user
+  await initializeBrokerCredentials(user.userId);
 
   //Create new session for the user
   const { sessionId } = await createSession(user.userId);
