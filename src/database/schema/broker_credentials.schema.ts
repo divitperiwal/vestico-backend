@@ -9,7 +9,7 @@ export const broker_credentials = pgTable("broker_credentials", {
         onDelete: "cascade",
     }),
     broker: brokerEnum("broker").notNull().default("mstock"),
-    credentials: jsonb("credentials").notNull(),
+    credentials: jsonb("credentials"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     
