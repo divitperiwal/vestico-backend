@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, integer, text } from "drizzle-orm/pg-core";
 import { users } from "./user.schema.js";
 import {brokerEnum} from "./enums.schema.js";
 
@@ -9,7 +9,7 @@ export const broker_credentials = pgTable("broker_credentials", {
         onDelete: "cascade",
     }),
     broker: brokerEnum("broker").notNull().default("mstock"),
-    credentials: jsonb("credentials"),
+    credentials: text("credentials"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     
