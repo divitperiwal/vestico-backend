@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import { cookieOptions, corsOptions } from "@/constant.js";
+import { corsOptions } from "@/constant.js";
+import adminRoutes from "@/routes/admin.route.js";
 import authRoutes from "@/routes/auth.route.js";
 import userRoutes from "@/routes/user.route.js";
 import { sendSuccess } from "./utils/response.js";
@@ -29,6 +30,10 @@ app.get("/health", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 
+//Admin only Routes
+app.use("/api/v1/admin", adminRoutes);
+
+//Error Handling Middlewares
 app.use(errorHandler);
 app.use(notFound);
 
