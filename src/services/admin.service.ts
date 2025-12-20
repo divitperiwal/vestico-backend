@@ -1,4 +1,10 @@
-import { getAllUsers, getBrokerCredentialsById, getUserById, updateBrokerCredentialsById, updateUserById } from "@/database/admin.database.js";
+import {
+  getAllUsers,
+  getBrokerCredentialsById,
+  getUserById,
+  updateBrokerCredentialsById,
+  updateUserById,
+} from "@/database/admin.database.js";
 import type { BaseBrokerCredentials } from "@/types/common.js";
 import { ApiError } from "@/utils/ApiError.js";
 import { decryptData, encryptData } from "@/utils/encryption.js";
@@ -27,40 +33,45 @@ export const updateUser = async (userId: string, updateData: any) => {
   return;
 };
 
-export const updateBrokerCredentials = async (userId: string, broker: string, credentials:object) => {
+export const updateBrokerCredentials = async (
+  userId: string,
+  broker: string,
+  credentials: object
+) => {
   if (!userId) throw new ApiError("User ID is required", 400);
   const user = await getUserById(userId);
   if (!user) throw new ApiError("User not found", 404);
 
   //Update fields
-  if(Object.keys(credentials).length === 0) throw new ApiError("No credentials provided for update", 400);
+  if (Object.keys(credentials).length === 0)
+    throw new ApiError("No credentials provided for update", 400);
 
   //Get Existing Credentials
   let existingRow = await getBrokerCredentialsById(userId);
-  let existingCredentials : BaseBrokerCredentials = {};
+  let existingCredentials: BaseBrokerCredentials = {};
 
   //Decrypt Existing Credentials
-  if(existingRow?.credentials){
-    try{
-      const decrypted = decryptData(existingRow.credentials as string);
+  if (existingRow?.credentials) {
+    try {
+      const decrypted = decryptData(existingRow.credentials);
       existingCredentials = JSON.parse(decrypted);
-    }catch(error){
+    } catch (error) {
+      console.log("Error decrypting existing broker credentials: ", error);
       throw new ApiError("Error decrypting existing broker credentials", 500);
     }
   }
-
 
   //Merge Credentials
   const mergedCredentials = {
     ...existingCredentials,
     ...credentials,
-    accessToken : existingCredentials?.accessToken || null,
-    accessTokenExpiry : existingCredentials?.accessTokenExpiry || null
-  }
+    accessToken: existingCredentials?.accessToken || null,
+    accessTokenExpiry: existingCredentials?.accessTokenExpiry || null,
+  };
 
   //Encrypt Credentials
   const encryptedCredentials = encryptData(JSON.stringify(mergedCredentials));
   await updateBrokerCredentialsById(userId, encryptedCredentials);
 
   return;
-}
+};
