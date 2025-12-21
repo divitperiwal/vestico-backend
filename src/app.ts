@@ -6,6 +6,7 @@ import { corsOptions } from "@/constant.js";
 import adminRoutes from "@/routes/admin.route.js";
 import authRoutes from "@/routes/auth.route.js";
 import userRoutes from "@/routes/user.route.js";
+import mstockRoutes from "@/routes/mstock.route.js";
 import { sendSuccess } from "./utils/response.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 const app = express();
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 //Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use('/api/v1/mstock', mstockRoutes)
 
 //Admin only Routes
 app.use("/api/v1/admin", adminRoutes);
