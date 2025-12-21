@@ -6,10 +6,10 @@ export interface SuccessResponse {
 }
 
 export interface ErrorResponse {
-  success:boolean, 
-  statusCode:number,
-  message:string,
-  errors?: any
+  success: boolean;
+  statusCode: number;
+  message: string;
+  errors?: any;
 }
 
 export interface ApiErrorResponse {
@@ -23,7 +23,7 @@ export interface ApiErrorResponse {
 export interface BaseBrokerCredentials {
   accessToken?: string;
   accessTokenExpiry?: string;
-} 
+}
 
 export interface DhanCredentials extends BaseBrokerCredentials {
   clientId: string;

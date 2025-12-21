@@ -4,30 +4,29 @@ import {
   getUserById,
   updateBrokerCredentialsById,
   updateUserById,
-} from "@/database/admin.database.js";
-import type { BaseBrokerCredentials } from "@/types/common.js";
-import { ApiError } from "@/utils/ApiError.js";
-import { decryptData, encryptData } from "@/utils/encryption.js";
+} from '@/database/admin.database.js';
+import type { BaseBrokerCredentials } from '@/types/common.js';
+import { ApiError } from '@/utils/ApiError.js';
+import { decryptData, encryptData } from '@/utils/encryption.js';
 
 export const getUsers = async () => {
   return await getAllUsers();
 };
 
 export const getUser = async (userId: string) => {
-  if (!userId) throw new ApiError("User ID is required", 400);
+  if (!userId) throw new ApiError('User ID is required', 400);
   const user = await getUserById(userId);
-  if (!user) throw new ApiError("User not found", 404);
+  if (!user) throw new ApiError('User not found', 404);
   return user;
 };
 
 export const updateUser = async (userId: string, updateData: any) => {
-  if (!userId) throw new ApiError("User ID is required", 400);
+  if (!userId) throw new ApiError('User ID is required', 400);
   const user = await getUserById(userId);
-  if (!user) throw new ApiError("User not found", 404);
+  if (!user) throw new ApiError('User not found', 404);
 
   //Update fields
-  if (Object.keys(updateData).length === 0)
-    throw new ApiError("No data provided for update", 400);
+  if (Object.keys(updateData).length === 0) throw new ApiError('No data provided for update', 400);
   await updateUserById(userId, updateData);
 
   return;
@@ -36,15 +35,15 @@ export const updateUser = async (userId: string, updateData: any) => {
 export const updateBrokerCredentials = async (
   userId: string,
   broker: string,
-  credentials: object
+  credentials: object,
 ) => {
-  if (!userId) throw new ApiError("User ID is required", 400);
+  if (!userId) throw new ApiError('User ID is required', 400);
   const user = await getUserById(userId);
-  if (!user) throw new ApiError("User not found", 404);
+  if (!user) throw new ApiError('User not found', 404);
 
   //Update fields
   if (Object.keys(credentials).length === 0)
-    throw new ApiError("No credentials provided for update", 400);
+    throw new ApiError('No credentials provided for update', 400);
 
   //Get Existing Credentials
   let existingRow = await getBrokerCredentialsById(userId);
@@ -56,8 +55,8 @@ export const updateBrokerCredentials = async (
       const decrypted = decryptData(existingRow.credentials);
       existingCredentials = JSON.parse(decrypted);
     } catch (error) {
-      console.log("Error decrypting existing broker credentials: ", error);
-      throw new ApiError("Error decrypting existing broker credentials", 500);
+      console.log('Error decrypting existing broker credentials: ', error);
+      throw new ApiError('Error decrypting existing broker credentials', 500);
     }
   }
 

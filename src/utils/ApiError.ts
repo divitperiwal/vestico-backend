@@ -1,4 +1,4 @@
-import type { ApiErrorResponse } from "@/types/common.js";
+import type { ApiErrorResponse } from '@/types/common.js';
 
 export class ApiError extends Error {
   public statusCode: number;
@@ -24,7 +24,7 @@ export class ApiError extends Error {
       code: this.statusCode,
     };
 
-    if (process.env.NODE_ENV === "development" && this.details) {
+    if (process.env.NODE_ENV === 'development' && this.details) {
       response.details = this.details;
     }
     return response;
