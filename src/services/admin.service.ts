@@ -8,26 +8,48 @@ import {
 import type { BaseBrokerCredentials } from '@/types/common.js';
 import { ApiError } from '@/utils/ApiError.js';
 import { decryptData, encryptData } from '@/utils/encryption.js';
+import {
+  deleteAllUsersFromCacheAdmin,
+  deleteProfileFromCache,
+  deleteUserProfileFromCacheAdmin,
+  getAllUsersFromCacheAdmin,
+  getProfileFromCache,
+  getUserProfileFromCacheAdmin,
+  saveAllUsersToCacheAdmin,
+  saveUserProfileToCacheAdmin,
+} from './redis/profile.service.js';
 
 export const getUsers = async () => {
-  return await getAllUsers();
+  const cached = await getAllUsersFromCacheAdmin();
+  if (cached) return cached;
+
+  const users = await getAllUsers();
+  await saveAllUsersToCacheAdmin(users);
+  return users;
 };
 
 export const getUser = async (userId: string) => {
   if (!userId) throw new ApiError('User ID is required', 400);
+  const cache = await getUserProfileFromCacheAdmin(userId);
+  if (cache) return cache;
   const user = await getUserById(userId);
   if (!user) throw new ApiError('User not found', 404);
+  await saveUserProfileToCacheAdmin(userId, user);
   return user;
 };
 
 export const updateUser = async (userId: string, updateData: any) => {
   if (!userId) throw new ApiError('User ID is required', 400);
-  const user = await getUserById(userId);
+  if (Object.keys(updateData).length === 0) throw new ApiError('No data provided for update', 400);
+  const user = await getUser(userId);
   if (!user) throw new ApiError('User not found', 404);
 
   //Update fields
-  if (Object.keys(updateData).length === 0) throw new ApiError('No data provided for update', 400);
+  
   await updateUserById(userId, updateData);
+  await deleteUserProfileFromCacheAdmin(userId);
+  await deleteProfileFromCache(userId);
+  await deleteAllUsersFromCacheAdmin();
 
   return;
 };

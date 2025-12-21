@@ -1,8 +1,5 @@
-import {
-  generateCsrfToken,
-  generateSessionId,
-} from "@/utils/tokenGeneration.js";
-import { SESSION_DURATION_MS } from "@/constant.js";
+import { generateCsrfToken, generateSessionId } from '@/utils/tokenGeneration.js';
+import { SESSION_DURATION_MS } from '@/constant.js';
 import {
   deleteSession,
   getOldSessionByUserId,
@@ -11,70 +8,78 @@ import {
   initializeBrokerCredentials,
   registerUserData,
   saveSession,
-} from "@/database/auth.database.js";
-import { ApiError } from "@/utils/ApiError.js";
-import { comparePassword, hashPassword } from "@/utils/hashing.js";
-import { createCsrfCookie, createSessionCookie } from "@/utils/cookies.js";
+} from '@/database/auth.database.js';
+import { ApiError } from '@/utils/ApiError.js';
+import { comparePassword, hashPassword } from '@/utils/hashing.js';
+import { createCsrfCookie, createSessionCookie } from '@/utils/cookies.js';
+import {
+  getSessionFromCache,
+  revokeSessionInCache,
+  storeSessionInCache,
+} from './redis/session.service.js';
+import { getProfileFromCache, saveProfileToCache } from './redis/profile.service.js';
+import { getUser } from '@/database/user.database.js';
 
 export const validateSession = async (sessionId: string) => {
-  const session = await getSession(sessionId);
+  //Check if session exists in redis
+  const session = await getSessionFromCache(sessionId);
+  if (!session) throw new ApiError('Invalid Session', 401);
 
-  if (session && session.expiresAt < new Date()) {
-    await deleteSession(sessionId);
-    return null;
+  let userData = await getProfileFromCache(session.userId);
+  if (!userData) {
+    userData = await getUser(session.userId);
+    if (!userData) throw new ApiError('User not found', 404);
+    await saveProfileToCache(userData.userId, userData);
   }
-
-  return {
-    userId: session?.userId,
-    email: session?.email,
-    sessionId: session?.sessionId,
-    role: session?.role,
-  };
+  return { ...userData, sessionId };
 };
 
 export const loginUser = async (email: string, password: string) => {
-  if (!email || !password)
-    throw new ApiError("Email and Password are required", 400);
+  if (!email || !password) throw new ApiError('Email and Password are required', 400);
   const user = await getUserWithPassword(email);
-  if (!user) throw new ApiError("Invalid Credentials", 401);
+  if (!user) throw new ApiError('Invalid Credentials', 401);
 
   //Check user's password
   const isPasswordValid = await comparePassword(password, user.password);
-  if (!isPasswordValid) throw new ApiError("Invalid Credentials", 401);
+  if (!isPasswordValid) throw new ApiError('Invalid Credentials', 401);
 
   //Delete any old session of user if exists
 
   const oldSession = await getOldSessionByUserId(user.userId);
-  if (oldSession) await deleteSession(oldSession.sessionId);
-
+  if (oldSession) {
+    await Promise.allSettled([
+      revokeSessionInCache(oldSession.sessionId),
+      deleteSession(oldSession.sessionId),
+    ]);
+  }
   //Create new session for the user
-
-  const { sessionId } = await createSession(user.userId);
+  const { sessionId, expiresAt } = await createSession(user.userId);
+  //Store in Redis
+  await storeSessionInCache(sessionId, user.userId, user.role, expiresAt);
+  //Generate CSRF Token
   const csrfToken = generateCsrfToken();
-
-  const sessionCookie = createSessionCookie(sessionId);
-  const csrfCookie = createCsrfCookie(csrfToken);
-
+  //Create User Data Object
   const userData = {
     userId: user.userId,
     email: user.email,
     name: user.name,
+    role: user.role,
   };
+
+  //Cookies
+  const sessionCookie = createSessionCookie(sessionId);
+  const csrfCookie = createCsrfCookie(csrfToken);
 
   return { sessionCookie, csrfCookie, user: userData };
 };
 
-export const registerUser = async (
-  email: string,
-  password: string,
-  name: string
-) => {
+export const registerUser = async (email: string, password: string, name: string) => {
   if (!email || !password || !name)
-    throw new ApiError("Email, Password and Name are required", 400);
+    throw new ApiError('Email, Password and Name are required', 400);
 
   //Check if user already exists
   const existingUser = await getUserWithPassword(email);
-  if (existingUser) throw new ApiError("User already exists", 409);
+  if (existingUser) throw new ApiError('User already exists', 409);
 
   const passwordHash = await hashPassword(password);
   const user = await registerUserData(email, passwordHash, name);
@@ -82,8 +87,13 @@ export const registerUser = async (
   await initializeBrokerCredentials(user.userId);
 
   //Create new session for the user
-  const { sessionId } = await createSession(user.userId);
+  const { sessionId, expiresAt } = await createSession(user.userId);
   const csrfToken = generateCsrfToken();
+
+  //Store in Redis
+  await storeSessionInCache(sessionId, user.userId, user.role, expiresAt);
+
+  //Cookies
   const csrfCookie = createCsrfCookie(csrfToken);
   const sessionCookie = createSessionCookie(sessionId);
 
@@ -91,7 +101,8 @@ export const registerUser = async (
 };
 
 export const logoutUser = async (sessionId: string) => {
-  if (!sessionId) throw new ApiError("Session ID is required", 400);
+  if (!sessionId) throw new ApiError('Session ID is required', 400);
+  await revokeSessionInCache(sessionId);
   await deleteSession(sessionId);
 
   return true;
