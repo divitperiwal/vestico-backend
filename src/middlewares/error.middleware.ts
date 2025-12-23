@@ -1,4 +1,4 @@
-import { sendError } from '@/utils/response.js';
+import { sendError } from '@/utils/helper/response.js';
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 

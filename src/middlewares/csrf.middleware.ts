@@ -1,6 +1,6 @@
 import { CSRF_HEADER_NAME } from '@/constant.js';
-import { ApiError } from '@/utils/ApiError.js';
-import { readCsrfCookie } from '@/utils/cookies.js';
+import { ApiError } from '@/utils/constants/ApiError.js';
+import { readCsrfCookie } from '@/utils/helper/cookies.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export const csrfMiddleware = (req: Request, res: Response, next: NextFunction) => {
