@@ -63,8 +63,8 @@ export class AdminService {
     const mergedCredentials = {
       ...existingCredentials,
       ...credentials,
-      accessToken:  null,
-      accessTokenExpiry:null,
+      accessToken: null,
+      accessTokenExpiry: null,
     };
 
     //Encrypt Credentials
@@ -73,7 +73,4 @@ export class AdminService {
 
     return;
   }
-
-
-
 }

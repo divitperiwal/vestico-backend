@@ -36,7 +36,7 @@ export class DhanClient {
           app_secret: apiSecret,
         },
       });
-      console.log(response.data)
+      console.log(response.data);
       return {
         accessToken: response?.data?.accessToken,
         accessTokenExpiry: response?.data?.expiryTime,
@@ -58,7 +58,7 @@ export class DhanClient {
           'access-token': accessToken,
         },
       });
-      return response.data
+      return response.data;
     } catch (error) {
       throw new ApiError('Failed to fetch Dhan portfolio', 500);
     }

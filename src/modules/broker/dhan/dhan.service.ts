@@ -16,7 +16,7 @@ export class DhanService {
   }
 
   static async getPortfolio(accessToken: string) {
-    if(!accessToken) throw new ApiError('Access Token not found', 404);
+    if (!accessToken) throw new ApiError('Access Token not found', 404);
     const portfolio = await DhanClient.getPortfolio(accessToken);
     if (!portfolio) throw new ApiError('Failed to fetch Dhan portfolio', 500);
     return portfolio;

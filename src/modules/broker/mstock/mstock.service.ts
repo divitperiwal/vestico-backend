@@ -8,7 +8,11 @@ import { generateTOTP } from '@/utils/helper/totp.js';
 export class MstockService {
   static async getAccessToken(userId: string) {
     const credentials = await BrokerService.getCredentials(userId);
-    if(credentials.accessToken && credentials.accessTokenExpiry && new Date() < new Date(credentials.accessTokenExpiry))
+    if (
+      credentials.accessToken &&
+      credentials.accessTokenExpiry &&
+      new Date() < new Date(credentials.accessTokenExpiry)
+    )
       return { accessToken: credentials.accessToken, apiKey: credentials.apiKey };
 
     // Generate new access token
