@@ -3,11 +3,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { corsOptions } from '@/constant.js';
-import adminRoutes from '@/routes/admin.route.js';
-import authRoutes from '@/routes/auth.route.js';
-import userRoutes from '@/routes/user.route.js';
-import mstockRoutes from '@/routes/mstock.route.js';
-import { sendSuccess } from './utils/response.js';
+import adminRoutes from '@/modules/admin/admin.route.js';
+import authRoutes from '@/modules/auth/auth.route.js';
+import userRoutes from '@/modules/users/user.route.js';
+import dhanRoutes from '@/modules/broker/dhan/dhan.route.js';
+import mstockRoutes from '@/modules/broker/mstock/mstock.route.js';
+import { sendSuccess } from './utils/helper/response.js';
 import { errorHandler, notFound } from './middlewares/error.middleware.js';
 const app = express();
 app.disable('x-powered-by');
@@ -31,6 +32,7 @@ app.get('/health', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/mstock', mstockRoutes);
+app.use('/api/v1/dhan', dhanRoutes);
 
 //Admin only Routes
 app.use('/api/v1/admin', adminRoutes);
