@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { handleLogin, handleLogout, handleRegister } from '@/controllers/auth.controller.js';
+import { handleLogin, handleLogout, handleRegister } from '@/modules/auth/auth.controller.js';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 
 const router = Router();

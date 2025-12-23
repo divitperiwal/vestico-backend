@@ -19,7 +19,7 @@ export const DhanCredentialsSchema = z
   .object({
     clientId: z.string().min(1, 'Client ID cannot be empty').trim().optional(),
     apiKey: z.string().min(1, 'API Key cannot be empty').trim().optional(),
-    secretKey: z.string().min(1, 'Secret Key cannot be empty').trim().optional(),
+    apiSecret: z.string().min(1, 'Secret Key cannot be empty').trim().optional(),
   })
   .strict();
 

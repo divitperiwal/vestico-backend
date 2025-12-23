@@ -1,4 +1,4 @@
-import { handleChangePassword, handleGetProfile } from '@/controllers/user.controller.js';
+import { handleChangePassword, handleGetProfile } from '@/modules/users/user.controller.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import { Router } from 'express';

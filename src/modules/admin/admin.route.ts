@@ -7,7 +7,7 @@ import {
   handleGetUser,
   handleUpdateUser,
   handleUpdateBrokerCredentials,
-} from '@/controllers/admin.controller.js';
+} from '@/modules/admin/admin.controller.js';
 
 const router = Router();
 

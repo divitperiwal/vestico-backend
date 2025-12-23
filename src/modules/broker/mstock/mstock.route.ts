@@ -1,12 +1,7 @@
 import { Router } from 'express';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
-import {
-  handleGetMstockPortfolio,
-  handleGetMstockFunds,
-  handleGetMstockPortfolioEtf,
-  handleGetMstockPortfolioStock,
-} from '@/controllers/mstock.controller.js';
+import { handleGetEtfPortfolio, handleGetFunds, handleGetPortfolio, handleGetStockPortfolio } from './mstock.controller.js';
 import { accessTokenMiddleware } from '@/middlewares/accessToken.middleware.js';
 
 const router = Router();
@@ -17,9 +12,9 @@ router.use(authMiddleware);
 
 //Routes
 router.use(accessTokenMiddleware);
-router.get('/portfolio', handleGetMstockPortfolio);
-router.get('/portfolio/etf', handleGetMstockPortfolioEtf);
-router.get('/portfolio/stock', handleGetMstockPortfolioStock);
-router.get('/funds', handleGetMstockFunds);
+router.get('/portfolio', handleGetPortfolio);
+router.get('/portfolio/etf', handleGetEtfPortfolio);
+router.get('/portfolio/stock', handleGetStockPortfolio);
+router.get('/funds', handleGetFunds);
 
 export default router;

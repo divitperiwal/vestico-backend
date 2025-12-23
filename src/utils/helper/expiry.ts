@@ -13,4 +13,3 @@ export const calculateTimeToExpiry = (expiry: Date) => {
   return timeDifference;
 };
 
-calculateTimeToExpiry(new Date('2025-12-21T13:13:00Z'));
