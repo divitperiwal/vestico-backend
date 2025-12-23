@@ -1,5 +1,5 @@
 import { handleDhanCallback, handleGenerateConsentToken } from '@/modules/broker/dhan/dhan.controller.js';
-import { accessTokenMiddleware } from '@/middlewares/accessToken.middleware.js';
+import { accessTokenMiddleware } from '@/middlewares/access-token.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import Router from 'express';

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import { handleGetEtfPortfolio, handleGetFunds, handleGetPortfolio, handleGetStockPortfolio } from './mstock.controller.js';
-import { accessTokenMiddleware } from '@/middlewares/accessToken.middleware.js';
+import { accessTokenMiddleware } from '@/middlewares/access-token.js';
 
 const router = Router();
 
