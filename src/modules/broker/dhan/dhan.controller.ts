@@ -1,6 +1,7 @@
 import { asyncHandler } from '@/utils/constants/asyncHandler.js';
 import { sendSuccess } from '@/utils/helper/response.js';
 import { DhanService } from './dhan.service.js';
+import { BrokerService } from '../broker.service.js';
 
 export const handleDhanCallback = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
@@ -22,11 +23,13 @@ export const handleGetPortfolio = asyncHandler(async (req, res) => {
 export const handleGetStockPortfolio = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const portfolio = await DhanService.getPortfolio(req.accessToken!);
-  sendSuccess(res, 200, 'Dhan stock portfolio fetched successfully', portfolio);
+  const stock = await BrokerService.getStocks(portfolio);
+  sendSuccess(res, 200, 'Dhan stock portfolio fetched successfully', stock);
 });
 
 export const handleGetEtfPortfolio = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const portfolio = await DhanService.getPortfolio(req.accessToken!);
-  sendSuccess(res, 200, 'Dhan ETF portfolio fetched successfully', portfolio);
+  const etf = await BrokerService.getETFs(portfolio);
+  sendSuccess(res, 200, 'Dhan ETF portfolio fetched successfully', etf);
 });

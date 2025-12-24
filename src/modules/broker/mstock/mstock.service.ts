@@ -4,6 +4,7 @@ import { MstockClient } from '@/lib/mstock-client.js';
 import { getMiraeTokenExpiry } from '@/utils/helper/expiry.js';
 import { BrokerService } from '../broker.service.js';
 import { generateTOTP } from '@/utils/helper/totp.js';
+import { AdminService } from '@/modules/admin/admin.service.js';
 
 export class MstockService {
   static async getAccessToken(userId: string) {
@@ -17,6 +18,15 @@ export class MstockService {
 
     // Generate new access token
     return await this.generateAccessToken(userId, credentials);
+  }
+
+  static async logout(userId:string, apiKey: string, token: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    await MstockClient.logout(apiKey, token);
+    await AdminService.deleteAccessToken(userId)
+    return;
   }
 
   //Routes Functions

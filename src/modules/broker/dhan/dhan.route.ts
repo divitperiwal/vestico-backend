@@ -1,16 +1,14 @@
 import {
   handleDhanCallback,
   handleGenerateConsentToken,
+  handleGetEtfPortfolio,
+  handleGetPortfolio,
+  handleGetStockPortfolio,
 } from '@/modules/broker/dhan/dhan.controller.js';
 import { accessTokenMiddleware } from '@/middlewares/access-token.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import Router from 'express';
-import {
-  handleGetEtfPortfolio,
-  handleGetPortfolio,
-  handleGetStockPortfolio,
-} from '../mstock/mstock.controller.js';
 
 const router = Router();
 

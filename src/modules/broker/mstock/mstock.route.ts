@@ -6,6 +6,7 @@ import {
   handleGetFunds,
   handleGetPortfolio,
   handleGetStockPortfolio,
+  handleLogout
 } from './mstock.controller.js';
 import { accessTokenMiddleware } from '@/middlewares/access-token.js';
 
@@ -21,5 +22,6 @@ router.get('/portfolio', handleGetPortfolio);
 router.get('/portfolio/etf', handleGetEtfPortfolio);
 router.get('/portfolio/stock', handleGetStockPortfolio);
 router.get('/funds', handleGetFunds);
+router.get('/logout', handleLogout)
 
 export default router;

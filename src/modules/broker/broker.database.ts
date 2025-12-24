@@ -26,4 +26,5 @@ export class BrokerDatabase {
       .where(eq(broker_credentials.userId, userId));
     return;
   }
+
 }

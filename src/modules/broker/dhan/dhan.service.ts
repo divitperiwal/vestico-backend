@@ -1,6 +1,7 @@
 import { ApiError } from '@/utils/constants/ApiError.js';
 import { BrokerService } from '../broker.service.js';
 import { DhanClient } from '@/lib/dhan-client.js';
+import { BrokerCache } from '@/cache/broker.cache.js';
 
 export class DhanService {
   static async getDhanAccessToken(userId: string) {
@@ -15,10 +16,13 @@ export class DhanService {
     return { accessToken: credentials.accessToken };
   }
 
-  static async getPortfolio(accessToken: string) {
+  static async getPortfolio(userId: string, accessToken: string) {
     if (!accessToken) throw new ApiError('Access Token not found', 404);
+    const cached = await BrokerCache.getPortfolio(userId);
+    if(cached) return cached;
     const portfolio = await DhanClient.getPortfolio(accessToken);
     if (!portfolio) throw new ApiError('Failed to fetch Dhan portfolio', 500);
+    await BrokerCache.storePortfolio(userId, portfolio);
     return portfolio;
   }
   static async generateAccessToken(userId: string) {

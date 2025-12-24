@@ -27,6 +27,23 @@ export class MstockClient {
     }
   }
 
+  static async logout(apiKey: string, token: string) {
+    const URL = `https://api.mstock.trade/openapi/typea/logout`;
+    try {
+      await axios.get(URL, {
+        headers:{
+          'X-Mirae-Version': '1',
+          'Authorization' : `token ${apiKey}:${token}`
+        }
+      })
+    } catch (error:any) {
+      throw new ApiError(
+        error.response.data?.message || 'Failed to logout from Mstock',
+        error.response.status || 500,
+      );
+    }
+  }
+
   static async getFunds(apiKey: string, token: string) {
     const URL = `https://api.mstock.trade/openapi/typea/user/fundsummary`;
     try {

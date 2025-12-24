@@ -27,6 +27,11 @@ export const handleGetEtfPortfolio = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'Fetched Mstock ETF Portfolio Successfully', etf);
 });
 
+export const handleLogout = asyncHandler(async (req, res) => {
+  await MstockService.logout(req.user?.userId!, req.apiKey!, req.accessToken!);
+  return sendSuccess(res, 200, 'Logged out from Mstock successfully');
+});
+
 export const handleGetStockPortfolio = asyncHandler(async (req, res) => {
   const portfolio = await MstockService.getPortfolio(
     req.apiKey!,
