@@ -1,5 +1,7 @@
 import { db } from '@/config/drizzle.config.js';
 import { broker_credentials } from '@/database/schema/broker_credentials.schema.js';
+import { etf } from '@/database/schema/etf.schema.js';
+import { sessions } from '@/database/schema/session.schema.js';
 import { users } from '@/database/schema/user.schema.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
 import { eq } from 'drizzle-orm';
@@ -69,6 +71,27 @@ export class AdminDatabase {
       })
       .where(eq(broker_credentials.userId, userId));
 
+    return;
+  }
+
+  static async revokeUserSession(userId: string) {
+    await db.delete(sessions).where(eq(sessions.userId, userId));
+
+    return;
+  }
+
+  static async getETFUniverse() {
+    const result = await db.select().from(etf);
+    if (result.length === 0) throw new ApiError('No ETFs found', 404);
+    return result;
+  }
+
+  static async addETF(ticker: string, name: string, underlyingAsset: string | null) {
+    await db.insert(etf).values({
+      ticker,
+      name,
+      underlyingAsset,
+    });
     return;
   }
 }

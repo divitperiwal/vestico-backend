@@ -3,6 +3,10 @@ import { ApiError } from '@/utils/constants/ApiError.js';
 import { AdminCache } from '@/cache/admin.cache.js';
 import { decryptData, encryptData } from '@/utils/helper/encryption.js';
 import type { BaseBrokerCredentials } from '@/types/common.js';
+import { AuthCache } from '@/cache/auth.cache.js';
+import { BrokerService } from '../broker/broker.service.js';
+import { DhanService } from '../broker/dhan/dhan.service.js';
+import { MstockService } from '../broker/mstock/mstock.service.js';
 
 export class AdminService {
   static async getAllUsers() {
@@ -73,4 +77,48 @@ export class AdminService {
 
     return;
   }
+
+  static async revokeUserSession(userId: string) {
+    if (!userId) throw new ApiError('User ID is required', 400);
+    const user = await this.getUser(userId);
+    if (!user) throw new ApiError('User not found', 404);
+
+    await AdminDatabase.revokeUserSession(userId);
+    await AuthCache.revokeSession(userId);
+    return;
+  }
+
+  static async deleteAccessToken(userId: string) {
+    if (!userId) throw new ApiError('User ID is required', 400);
+    const user = await this.getUser(userId);
+    if (!user) throw new ApiError('User not found', 404);
+
+    const existingRow = await AdminDatabase.getBrokerCredentials(userId);
+    if (!existingRow?.credentials) throw new ApiError('Broker credentials not found', 404);
+
+    const decrypted = decryptData(existingRow?.credentials);
+    const existingCredentials: BaseBrokerCredentials = JSON.parse(decrypted);
+
+    if (!existingCredentials.accessToken) throw new ApiError('Access token not found', 404);
+    const newCredentials = { ...existingCredentials, accessToken: null, accessTokenExpiry: null };
+
+    //Encrypt Credentials
+    await BrokerService.encryptAndStoreCredentials(userId, newCredentials);
+  }
+
+  static async getUserPortfolio(userId: string) {
+    if (!userId) throw new ApiError('User ID is required', 400);
+
+    const result = await BrokerService.resolveBrokerContext(userId);
+
+    switch (result?.broker) {
+      case 'dhan':
+        return DhanService.getPortfolio(userId, result.accessToken);
+      case 'mstock':
+        return MstockService.getPortfolio(result.apiKey, result.accessToken, userId);
+      default:
+        throw new ApiError('Unsupported broker', 400);
+    }
+  }
+
 }

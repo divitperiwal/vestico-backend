@@ -7,6 +7,7 @@ import {
   UpdateUserParamsSchema,
   UserParamsSchema,
 } from '@/types/validation/admin.validation.js';
+import { RankGenerator } from '@/lib/generate-rank.js';
 
 export const handleGetAllUsers = asyncHandler(async (req, res) => {
   const users = await AdminService.getAllUsers();
@@ -42,4 +43,27 @@ export const handleUpdateBrokerCredentials = asyncHandler(async (req, res) => {
   }
   await AdminService.updateBrokerCredentials(userId, updateData);
   return sendSuccess(res, 200, 'Broker credentials updated successfully');
+});
+
+export const handleRevokeSessionAdmin = asyncHandler(async (req, res) => {
+  const { id: userId } = UserParamsSchema.parse(req.params);
+  await AdminService.revokeUserSession(userId);
+  return sendSuccess(res, 200, 'User sessions revoked successfully');
+});
+
+export const handleGetUserPortfolio = asyncHandler(async (req, res) => {
+  const { id: userId } = UserParamsSchema.parse(req.params);
+  const portfolio = await AdminService.getUserPortfolio(userId);
+  return sendSuccess(res, 200, 'User portfolio fetched successfully', portfolio);
+});
+
+export const handleGetRanks = asyncHandler(async (req, res) => {
+  const result = await RankGenerator.getRanks('trial');
+  return sendSuccess(res, 200, 'Ranks fetched successfully', result);
+});
+
+export const handleGenerateRank = asyncHandler(async (req, res) => {
+  const { day } = req.params;
+  const result = await RankGenerator.generateRank(day);
+  return sendSuccess(res, 200, 'Ranks generated successfully', result);
 });

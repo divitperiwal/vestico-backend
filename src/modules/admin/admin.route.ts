@@ -7,6 +7,10 @@ import {
   handleGetUser,
   handleUpdateUser,
   handleUpdateBrokerCredentials,
+  handleRevokeSessionAdmin,
+  handleGetUserPortfolio,
+  handleGetRanks,
+  handleGenerateRank,
 } from '@/modules/admin/admin.controller.js';
 
 const router = Router();
@@ -18,9 +22,17 @@ router.use(checkAdminMiddleware);
 
 router.get('/users', handleGetAllUsers);
 router.get('/users/:id', handleGetUser);
-router.patch('/users/:id', handleUpdateUser);
+router.post('/users/:id', handleUpdateUser);
 
 //Update Broker Credentials
 router.post('/users/:id/broker-credentials', handleUpdateBrokerCredentials);
+router.get('/users/:id/portfolio', handleGetUserPortfolio);
+
+//Get Ranks
+router.get('/ranks', handleGetRanks);
+router.get('/ranks/:day/generate', handleGenerateRank )
+
+//Logout user
+router.get('/users/:id/revoke-session', handleRevokeSessionAdmin);
 
 export default router;
