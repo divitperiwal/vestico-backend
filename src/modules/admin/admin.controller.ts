@@ -27,6 +27,12 @@ export const handleUpdateUser = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'User updated successfully');
 });
 
+export const handleGetBrokerCredentials = asyncHandler(async (req, res) => {
+  const { id: userId } = UserParamsSchema.parse(req.params);
+  const credentials = await AdminService.isCredentialsPresent(userId);
+  return sendSuccess(res, 200, 'Broker credentials fetched successfully', { present: credentials });
+});
+
 export const handleUpdateBrokerCredentials = asyncHandler(async (req, res) => {
   const { id: userId } = UserParamsSchema.parse(req.params);
   const broker = await AdminService.getUserBroker(userId);
@@ -58,7 +64,8 @@ export const handleGetUserPortfolio = asyncHandler(async (req, res) => {
 });
 
 export const handleGetRanks = asyncHandler(async (req, res) => {
-  const result = await RankGenerator.getRanks('trial');
+  const { day } = req.params;
+  const result = await RankGenerator.getRanks(day);
   return sendSuccess(res, 200, 'Ranks fetched successfully', result);
 });
 

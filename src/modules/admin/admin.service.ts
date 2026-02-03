@@ -51,6 +51,17 @@ export class AdminService {
     return user.broker;
   }
 
+  static async isCredentialsPresent(userId:string) {
+    if (!userId) throw new ApiError('User ID is required', 400);
+    const user = await this.getUser(userId);
+    if (!user) throw new ApiError('User not found', 404);
+
+    const existingRow = await AdminDatabase.getBrokerCredentials(userId);
+    if (!existingRow?.credentials) return false;
+
+    return true;
+  }
+
   static async updateBrokerCredentials(userId: string, credentials: any) {
     if (!userId) throw new ApiError('User ID is required', 400);
     if (Object.keys(credentials).length === 0)

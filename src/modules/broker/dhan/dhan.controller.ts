@@ -16,20 +16,20 @@ export const handleGenerateConsentToken = asyncHandler(async (req, res) => {
 });
 export const handleGetPortfolio = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-  const portfolio = await DhanService.getPortfolio(req.accessToken!);
+  const portfolio = await DhanService.getPortfolio(userId!, req.accessToken!);
   sendSuccess(res, 200, 'Dhan Portfolio fetched successfully', portfolio);
 });
 
 export const handleGetStockPortfolio = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-  const portfolio = await DhanService.getPortfolio(req.accessToken!);
+  const portfolio = await DhanService.getPortfolio(userId!, req.accessToken!);
   const stock = await BrokerService.getStocks(portfolio);
   sendSuccess(res, 200, 'Dhan stock portfolio fetched successfully', stock);
 });
 
 export const handleGetEtfPortfolio = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-  const portfolio = await DhanService.getPortfolio(req.accessToken!);
+  const portfolio = await DhanService.getPortfolio(userId!, req.accessToken!);
   const etf = await BrokerService.getETFs(portfolio);
   sendSuccess(res, 200, 'Dhan ETF portfolio fetched successfully', etf);
 });

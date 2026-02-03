@@ -9,7 +9,7 @@ const router = Router();
 router.post('/login', handleLogin);
 router.post('/register', handleRegister);
 
-router.use(csrfMiddleware);
+// router.use(csrfMiddleware);
 router.get('/logout', handleLogout);
 
 export default router;
