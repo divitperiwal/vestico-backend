@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { csrfMiddleware } from '@/middlewares/csrf.middleware.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import {
   handleGetEtfPortfolio,
@@ -14,7 +13,6 @@ const router = Router();
 
 //Middlewares
 router.use(authMiddleware);
-// router.use(csrfMiddleware);
 
 //Routes
 router.use(accessTokenMiddleware);
