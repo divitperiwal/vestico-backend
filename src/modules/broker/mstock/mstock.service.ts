@@ -13,19 +13,20 @@ export class MstockService {
       credentials.accessToken &&
       credentials.accessTokenExpiry &&
       new Date() < new Date(credentials.accessTokenExpiry)
-    )
+    ) {
       return { accessToken: credentials.accessToken, apiKey: credentials.apiKey };
+    }
 
     // Generate new access token
     return await this.generateAccessToken(userId, credentials);
   }
 
-  static async logout(userId:string, apiKey: string, token: string) {
+  static async logout(userId: string, apiKey: string, token: string) {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
 
     await MstockClient.logout(apiKey, token);
-    await AdminService.deleteAccessToken(userId)
+    await AdminService.deleteAccessToken(userId);
     return;
   }
 
@@ -76,7 +77,7 @@ export class MstockService {
   }
 
   private static async getTotp(secret: string) {
-    const totp = generateTOTP(secret); // Placeholder for TOTP generation logic
+    const totp = generateTOTP(secret);
     return totp;
   }
 }
