@@ -57,30 +57,30 @@ export class AuthDatabase {
   }
 
   //User Authentication Operations
-  static async getUserWithPassword(email: string) {
+  static async getUserWithPassword(username: string) {
     const [user] = await db
       .select({
         userId: users.userId,
-        email: users.email,
+        username: users.username,
         password: users.password,
         name: users.name,
         role: users.role,
       })
       .from(users)
-      .where(eq(users.email, email))
+      .where(eq(users.username, username))
       .limit(1);
 
     return user ?? null;
   }
 
-  static async createUser(email: string, passwordHash: string, name: string) {
+  static async createUser(username: string, email:string,  passwordHash: string, name: string) {
     return db.transaction(async (tx) => {
       const [user] = await tx
         .insert(users)
-        .values({ email, password: passwordHash, name, role: 'user' })
+        .values({ username, email, password: passwordHash, name, role: 'user' })
         .returning({
           userId: users.userId,
-          email: users.email,
+          username: users.username,
           name: users.name,
           role: users.role,
         });

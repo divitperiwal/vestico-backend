@@ -27,9 +27,9 @@ export class AuthService {
   }
 
   //Login User
-  static async loginUser(email: string, password: string) {
-    if (!email || !password) throw new ApiError('Email and Password are required', 400);
-    const user = await AuthDatabase.getUserWithPassword(email);
+  static async loginUser(username: string, password: string) {
+    if (!username || !password) throw new ApiError('Username and Password are required', 400);
+    const user = await AuthDatabase.getUserWithPassword(username);
     if (!user) throw new ApiError('Invalid Credentials', 401);
 
     //Check user's password
@@ -57,14 +57,13 @@ export class AuthService {
   }
 
   //Register User
-  static async registerUser(email: string, password: string, name: string) {
-    if (!email || !password || !name)
-      throw new ApiError('Email, Password and Name are required', 400);
-    const exisitingUser = await AuthDatabase.getUserWithPassword(email);
-    if (exisitingUser) throw new ApiError('User with this email already exists', 409);
-
+  static async registerUser(username: string, email: string, password: string, name: string) {
+    if (!username || !email || !password || !name)
+      throw new ApiError('Username, Email, Password and Name are required', 400);
+    const exisitingUser = await AuthDatabase.getUserWithPassword(username);
+    if (exisitingUser) throw new ApiError('User with this username already exists', 409);
     const passwordHash = await hashPassword(password);
-    const user = await AuthDatabase.createUser(email, passwordHash, name);
+    const user = await AuthDatabase.createUser(username, email, passwordHash, name);
     if (!user) throw new ApiError('Failed to create user', 500);
 
     //Create new session for the user
@@ -81,10 +80,9 @@ export class AuthService {
   //Logout User
   static async logoutUser(sessionId: string) {
     if (!sessionId) throw new ApiError('Session ID is required', 400);
-    await Promise.allSettled([
-      AuthCache.revokeSession(sessionId),
-      AuthDatabase.deleteSession(sessionId),
-    ]);
+    await AuthCache.revokeSession(sessionId);
+    await AuthDatabase.deleteSession(sessionId);
+    return
   }
 
   //Helper Functions

@@ -12,6 +12,7 @@ export class AdminDatabase {
       .select({
         userId: users.userId,
         name: users.name,
+        username: users.username,
         email: users.email,
         strategy: users.strategy,
         createdAt: users.createdAt,

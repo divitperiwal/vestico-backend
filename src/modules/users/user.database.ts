@@ -9,9 +9,12 @@ export class UserDatabase {
     const [user] = await db
       .select({
         userId: users.userId,
+        username : users.username,
         role: users.role,
         email: users.email,
         name: users.name,
+        strategy: users.strategy,
+        createdAt : users.createdAt,
         broker: broker_credentials.broker,
       })
       .from(users)

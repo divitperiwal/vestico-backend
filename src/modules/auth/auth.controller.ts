@@ -5,16 +5,16 @@ import { LoginUserSchema, RegisterUserSchema } from '@/types/validation/auth.val
 import { AuthService } from './auth.service.js';
 
 export const handleLogin = asyncHandler(async (req, res) => {
-  const { email, password } = LoginUserSchema.parse(req.body);
-  const { sessionCookie, csrfCookie, user } = await AuthService.loginUser(email, password);
+  const { username, password } = LoginUserSchema.parse(req.body);
+  const { sessionCookie, csrfCookie, user } = await AuthService.loginUser(username, password);
 
   res.setHeader('Set-Cookie', [sessionCookie, csrfCookie]);
   return sendSuccess(res, 200, 'Login Successfull', user);
 });
 
 export const handleRegister = asyncHandler(async (req, res) => {
-  const { email, password, name } = RegisterUserSchema.parse(req.body);
-  const { sessionCookie, csrfCookie, user } = await AuthService.registerUser(email, password, name);
+  const { username, email, password, name } = RegisterUserSchema.parse(req.body);
+  const { sessionCookie, csrfCookie, user } = await AuthService.registerUser(username, email, password, name);
 
   res.setHeader('Set-Cookie', [sessionCookie, csrfCookie]);
 
