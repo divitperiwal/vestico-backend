@@ -8,6 +8,13 @@ import {
   UserParamsSchema,
 } from '@/types/validation/admin.validation.js';
 import { RankGenerator } from '@/lib/generate-rank.js';
+import { RegisterUserSchema } from '@/types/validation/auth.validation.js';
+
+export const handleRegisterUser = asyncHandler(async (req, res) => {
+  const { username, email, password, name , broker, strategy} = RegisterUserSchema.parse(req.body);
+  const register = await AdminService.registerUser(username, email , password, name, broker, strategy);
+  return sendSuccess(res, 201, 'User Registered Successfully', register);
+});
 
 export const handleGetAllUsers = asyncHandler(async (req, res) => {
   const users = await AdminService.getAllUsers();

@@ -1,3 +1,4 @@
+import { brokerEnum, strategyEnum } from '@/database/schema/enums.schema.js';
 import { z } from 'zod';
 
 export const LoginUserSchema = z
@@ -17,5 +18,9 @@ export const RegisterUserSchema = z
       .max(50, 'Password is too long')
       .trim(),
     name: z.string().min(1, 'Name is required').trim().max(50, 'Name is too long'),
+    broker: z.enum(brokerEnum.enumValues, { message: 'Broker must be either "dhan" or "mstock"' }),
+    strategy: z.enum(strategyEnum.enumValues, {
+      message: 'Please enter correct strategy',
+    }),
   })
   .strict();

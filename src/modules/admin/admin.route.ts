@@ -11,6 +11,7 @@ import {
   handleGetRanks,
   handleGenerateRank,
   handleGetBrokerCredentials,
+  handleRegisterUser,
 } from '@/modules/admin/admin.controller.js';
 
 const router = Router();
@@ -18,6 +19,9 @@ const router = Router();
 //Middlewares
 router.use(authMiddleware);
 router.use(checkAdminMiddleware);
+
+//Register User
+router.post('/users/register', handleRegisterUser);
 
 router.get('/users', handleGetAllUsers);
 router.get('/users/:id', handleGetUser);

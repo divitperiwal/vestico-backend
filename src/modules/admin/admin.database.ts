@@ -1,12 +1,51 @@
 import { db } from '@/config/drizzle.config.js';
 import { broker_credentials } from '@/database/schema/broker_credentials.schema.js';
+import {
+  brokerEnum,
+  strategyEnum,
+  type Broker,
+  type Strategy,
+} from '@/database/schema/enums.schema.js';
 import { etf } from '@/database/schema/etf.schema.js';
 import { sessions } from '@/database/schema/session.schema.js';
 import { users } from '@/database/schema/user.schema.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 export class AdminDatabase {
+  static async createUser(
+    username: string,
+    email: string,
+    password: string,
+    name: string,
+    broker: Broker,
+    strategy: Strategy,
+  ) {
+    return await db.transaction(async (tx) => {
+      console.log('Creating user in transaction');
+      const [user] = await tx
+        .insert(users)
+        .values({
+          username,
+          email,
+          password,
+          name,
+          strategy,
+        })
+        .onConflictDoNothing()
+        .returning({
+          userId: users.userId,
+        });
+      if (!user) throw new ApiError('User with given username or email already exists', 409);
+
+      await tx.insert(broker_credentials).values({
+        userId: user.userId,
+        broker: broker,
+        credentials: null,
+      });
+      return user;
+    });
+  }
   static async getAllUsers() {
     const result = await db
       .select({

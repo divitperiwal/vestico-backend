@@ -7,8 +7,20 @@ import { AuthCache } from '@/cache/auth.cache.js';
 import { BrokerService } from '../broker/broker.service.js';
 import { DhanService } from '../broker/dhan/dhan.service.js';
 import { MstockService } from '../broker/mstock/mstock.service.js';
+import type { Broker, Strategy } from '@/database/schema/enums.schema.js';
+import { hashPassword } from '@/utils/helper/hashing.js';
 
 export class AdminService {
+
+  static async registerUser(username: string, email: string, password: string, name: string, broker: Broker, strategy: Strategy) {
+    if (!username || !email || !password || !name)
+      throw new ApiError('All fields are required', 400);
+    
+    const passwordHash = await hashPassword(password);
+    const newUser = await AdminDatabase.createUser(username, email, passwordHash, name, broker, strategy);
+    return newUser;
+  }
+
   static async getAllUsers() {
     const cached = await AdminCache.getAllUsers();
     if (cached) return cached;
