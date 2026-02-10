@@ -23,12 +23,12 @@ export class UserService {
     return user;
   }
 
-  static async changePassword(userId: string, oldPassword: string, newPassword: string) {
-    if (!userId) throw new ApiError('Unauthorized', 401);
+  static async changePassword(userId:string, oldPassword: string, newPassword: string) {
+    if(!userId) throw new ApiError('Unauthorized', 401);
     if (!oldPassword || !newPassword)
       throw new ApiError('Old password and new password are required', 400);
 
-    const user = await AuthDatabase.getUserWithPassword(userId);
+    const user = await AuthDatabase.getUserWithPasswordByUserId(userId);
     if (!user) throw new ApiError('User not found', 404);
 
     const isOldPasswordValid = await comparePassword(oldPassword, user.password);

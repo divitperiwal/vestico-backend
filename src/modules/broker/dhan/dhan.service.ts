@@ -19,7 +19,7 @@ export class DhanService {
   static async getPortfolio(userId: string, accessToken: string) {
     if (!accessToken) throw new ApiError('Access Token not found', 404);
     const cached = await BrokerCache.getPortfolio(userId);
-    if(cached) return cached;
+    if (cached) return cached;
     const portfolio = await DhanClient.getPortfolio(accessToken);
     if (!portfolio) throw new ApiError('Failed to fetch Dhan portfolio', 500);
     await BrokerCache.storePortfolio(userId, portfolio);
@@ -57,8 +57,9 @@ export class DhanService {
       credentials.apiKey,
       credentials.apiSecret,
     );
-    if (!accessToken || !accessTokenExpiry)
+    if (!accessToken || !accessTokenExpiry) {
       throw new ApiError('Failed to consume consent token', 500);
+    }
 
     await BrokerService.encryptAndStoreCredentials(userId, {
       ...credentials,

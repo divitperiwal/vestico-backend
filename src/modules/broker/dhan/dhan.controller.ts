@@ -7,7 +7,7 @@ export const handleDhanCallback = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
   const { tokenId } = req.query;
   const result = await DhanService.consumeConsentToken(userId, tokenId as string);
-  sendSuccess(res, 200, 'Done', result);
+  res.redirect(`${process.env.CORS_ORIGIN}/dhan/callback?status=success`);
 });
 export const handleGenerateConsentToken = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
