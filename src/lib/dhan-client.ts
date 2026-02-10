@@ -36,7 +36,6 @@ export class DhanClient {
           app_secret: apiSecret,
         },
       });
-      console.log(response.data);
       return {
         accessToken: response?.data?.accessToken,
         accessTokenExpiry: response?.data?.expiryTime,

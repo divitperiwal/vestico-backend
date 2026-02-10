@@ -17,7 +17,6 @@ export class AdminDatabase {
     strategy: Strategy,
   ) {
     return await db.transaction(async (tx) => {
-      console.log('Creating user in transaction');
       const [user] = await tx
         .insert(users)
         .values({
@@ -74,7 +73,6 @@ export class AdminDatabase {
       .leftJoin(broker_credentials, eq(users.userId, broker_credentials.userId))
       .where(eq(users.userId, userId));
     if (!result) throw new ApiError('User not found', 404);
-    console.log(result);
     return result;
   }
 

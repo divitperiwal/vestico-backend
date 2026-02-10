@@ -3,6 +3,8 @@ import { UserDatabase } from './user.database.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
 import { AuthDatabase } from '../auth/auth.database.js';
 import { comparePassword, hashPassword } from '@/utils/helper/hashing.js';
+import { BrokerService } from '../broker/broker.service.js';
+import { RankGenerator } from '@/lib/generate-rank.js';
 
 export class UserService {
   static async getUserProfile(userId: string) {
@@ -37,5 +39,17 @@ export class UserService {
     await UserDatabase.updateUserPassword(userId, newPasswordHash);
 
     return;
+  }
+
+  static async getUserRecommendation(userId: string) {
+    if (!userId) throw new ApiError('Unauthorized', 401);
+    const user = await this.getUserProfile(userId);
+    const strategyId = user.strategy;
+    if (!strategyId) throw new ApiError('User strategy not found', 404);
+    //Fetch recommendations
+    const filteredPortfolio = await BrokerService.getFilteredPortfolio(userId);
+    const recommendations = await RankGenerator.getRecommendations(strategyId, filteredPortfolio);
+
+    return recommendations;
   }
 }
