@@ -1,16 +1,20 @@
 export const getMiraeTokenExpiry = () => {
   const now = new Date();
 
-  // Get current time in IST
-  const istTime = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  const utcEndOfDay = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      23, // 11 PM
+      59, // 59 minutes
+      59, // 59 seconds
+      999, // 999 milliseconds
+    ),
   );
 
-  // Set to 11:59:59 PM IST
-  istTime.setHours(23, 59, 59, 999);
-
-  return istTime;
-}
+  return utcEndOfDay;
+};
 
 export const calculateTimeToExpiry = (expiry: Date) => {
   const now = Date.now();
