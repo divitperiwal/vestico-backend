@@ -77,7 +77,7 @@ export class MstockClient {
       return response.data.data;
     } catch (error: any) {
       throw new ApiError(
-        error.response.data?.message || 'Failed to fetch Mstock Portfolio',
+        error.response.statusText || 'Failed to fetch Mstock Portfolio',
         error.response.status || 500,
       );
     }

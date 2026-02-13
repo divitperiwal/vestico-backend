@@ -18,6 +18,7 @@ export class AdminService {
     
     const passwordHash = await hashPassword(password);
     const newUser = await AdminDatabase.createUser(username, email, passwordHash, name, broker, strategy);
+    await AdminCache.deleteAllUsers();
     return newUser;
   }
 
