@@ -7,9 +7,10 @@ import { generateTOTP } from '@/utils/helper/totp.js';
 import { AdminService } from '@/modules/admin/admin.service.js';
 
 export class MstockService {
-  static async getAccessToken(userId: string) {
+  static async getAccessToken(userId: string, forceRefresh = false) {
     const credentials = await BrokerService.getCredentials(userId);
     if (
+      !forceRefresh &&
       credentials.accessToken &&
       credentials.accessTokenExpiry &&
       new Date() < new Date(credentials.accessTokenExpiry)
@@ -38,10 +39,16 @@ export class MstockService {
     const cached = await BrokerCache.getFunds(userId);
     if (cached) return cached;
 
-    const funds = await MstockClient.getFunds(apiKey, token);
-    await BrokerCache.storeFunds(userId, funds);
-
-    return funds;
+    try {
+      const funds = await MstockClient.getFunds(apiKey, token);
+      await BrokerCache.storeFunds(userId, funds);
+      return funds;
+    } catch {
+      const { accessToken, apiKey: newKey } = await this.getAccessToken(userId, true);
+      const funds = await MstockClient.getFunds(newKey, accessToken);
+      await BrokerCache.storeFunds(userId, funds);
+      return funds;
+    }
   }
 
   static async getPortfolio(apiKey: string, token: string, userId: string) {
@@ -50,10 +57,16 @@ export class MstockService {
     const cached = await BrokerCache.getPortfolio(userId);
     if (cached) return cached;
 
-    //Fetch Portfolio from MStock
-    const portfolio = await MstockClient.getPortfolio(apiKey, token);
-    await BrokerCache.storePortfolio(userId, portfolio);
-    return portfolio;
+    try {
+      const portfolio = await MstockClient.getPortfolio(apiKey, token);
+      await BrokerCache.storePortfolio(userId, portfolio);
+      return portfolio;
+    } catch {
+      const { accessToken, apiKey: newKey } = await this.getAccessToken(userId, true);
+      const portfolio = await MstockClient.getPortfolio(newKey, accessToken);
+      await BrokerCache.storePortfolio(userId, portfolio);
+      return portfolio;
+    }
   }
 
   //Private Methods
