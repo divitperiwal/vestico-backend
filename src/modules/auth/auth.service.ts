@@ -3,9 +3,9 @@ import { UserCache } from '@/cache/user.cache.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
 import { AuthDatabase } from './auth.database.js';
 import { comparePassword, hashPassword } from '@/utils/helper/hashing.js';
-import { generateCsrfToken, generateSessionId } from '@/utils/constants/tokenGeneration.js';
+import { generateSessionId } from '@/utils/constants/tokenGeneration.js';
 import { SESSION_DURATION_MS } from '@/constant.js';
-import { createCsrfCookie, createSessionCookie } from '@/utils/helper/cookies.js';
+import { createSessionCookie } from '@/utils/helper/cookies.js';
 import { UserDatabase } from '../users/user.database.js';
 
 export class AuthService {
@@ -47,13 +47,11 @@ export class AuthService {
 
     //Create new session for the user and store in Redis & DB
     const { sessionId, expiresAt } = await this.createSession(user.userId, user.role);
-    const csrfToken = generateCsrfToken();
 
     //Cookies
-    const csrfCookie = createCsrfCookie(csrfToken);
     const sessionCookie = createSessionCookie(sessionId);
 
-    return { sessionCookie, csrfCookie, user };
+    return { sessionCookie, user };
   }
 
   //Register User
@@ -68,13 +66,11 @@ export class AuthService {
 
     //Create new session for the user
     const { sessionId, expiresAt } = await this.createSession(user.userId, user.role);
-    const csrfToken = generateCsrfToken();
 
     //Cookies
-    const csrfCookie = createCsrfCookie(csrfToken);
     const sessionCookie = createSessionCookie(sessionId);
 
-    return { sessionCookie, csrfCookie, user };
+    return { sessionCookie, user };
   }
 
   //Logout User
