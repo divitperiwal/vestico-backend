@@ -50,8 +50,13 @@ export class AuthService {
 
     //Cookies
     const sessionCookie = createSessionCookie(sessionId);
-
-    return { sessionCookie, user };
+    const userWithoutPassword = {
+      userId: user.userId,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    }
+    return { sessionCookie, user: userWithoutPassword };
   }
 
   //Register User
