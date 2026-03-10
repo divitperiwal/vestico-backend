@@ -9,10 +9,12 @@ export const accessTokenMiddleware = async (req: Request, res: Response, next: N
     if (!accessToken) throw new ApiError('Error fetching Mstock Access Token', 500);
     req.accessToken = accessToken;
     req.apiKey = apiKey;
+  } else {
+    const { accessToken } = await DhanService.getDhanAccessToken(req.user!.userId);
+    req.accessToken = accessToken;
   }
 
-  const { accessToken } = await DhanService.getDhanAccessToken(req.user!.userId);
-  req.accessToken = accessToken;
+
 
   next();
 };
