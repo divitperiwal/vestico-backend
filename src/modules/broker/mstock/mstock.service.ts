@@ -5,6 +5,7 @@ import { getMiraeTokenExpiry } from '@/utils/helper/expiry.js';
 import { BrokerService } from '../broker.service.js';
 import { generateTOTP } from '@/utils/helper/totp.js';
 import { AdminService } from '@/modules/admin/admin.service.js';
+import { connectMstock } from './mstock.ws.js';
 
 export class MstockService {
   static async getAccessToken(userId: string, forceRefresh = false) {
@@ -68,6 +69,61 @@ export class MstockService {
       return portfolio;
     }
   }
+
+  static async getPositions(apiKey: string, token: string, userId: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    try {
+      const positions = await MstockClient.getPositions(apiKey, token);
+      return positions;
+    } catch (error) {
+      const { accessToken, apiKey: newKey } = await this.getAccessToken(userId, true);
+      const positions = await MstockClient.getPositions(newKey, accessToken);
+      return positions;
+    }
+  }
+
+  //Data Functions
+  static async getOlhcData(apiKey: string, token: string, ticker: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+    const data = await MstockClient.getOlhcData(apiKey, token, ticker);
+    return data;
+  }
+  static async getHistoricalData(apiKey: string, token: string, ticker: string) {
+    //Fetch Historical Data for the given ticker
+
+  }
+
+  static async getIntradayData(apiKey: string, token: string, ticker: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    const data = await MstockClient.getIntradayData(apiKey, token, ticker);
+    return data;
+  }
+
+  static async getTopMovers(apiKey: string, token: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    const [gainers, losers] = await Promise.all([
+      MstockClient.getTopMovers(apiKey, token, 'g'),
+      MstockClient.getTopMovers(apiKey, token, 'l')
+    ]);
+    return { gainers, losers };
+  }
+
+
+  //Websocket
+  static async getWsConnection(apiKey: string, token: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+    connectMstock(apiKey, token);
+    return;
+  }
+
 
   //Private Methods
   private static async generateAccessToken(userId: string, credentials: any) {

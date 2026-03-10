@@ -41,3 +41,35 @@ export const handleGetStockPortfolio = asyncHandler(async (req, res) => {
   const stock = await BrokerService.getStocks(portfolio);
   return sendSuccess(res, 200, 'Fetched Mstock Stock Portfolio Successfully', stock);
 });
+
+export const handleGetPositions = asyncHandler(async (req, res) => {
+  const position = await MstockService.getPositions(
+    req.apiKey!,
+    req.accessToken!,
+    req.user?.userId!,
+  );
+  return sendSuccess(res, 200, 'Fetched Mstock Positions Successfully', position);
+})
+
+export const handleOlhcData = asyncHandler(async (req, res) => {
+  const { ticker } = req.params;
+  const data = await MstockService.getOlhcData(req.apiKey!, req.accessToken!, ticker);
+  return sendSuccess(res, 200, 'Fetched OHLC data successfully', data);
+})
+
+export const handleGetWsConnection = asyncHandler(async (req, res) => {
+  const connection = await MstockService.getWsConnection(req.apiKey!, req.accessToken!);
+  return sendSuccess(res, 200, 'Websocket connection established successfully', connection);
+})
+
+export const handleHistoricalData = asyncHandler(async (req, res) => {
+  const { ticker } = req.params;
+  const data = await MstockService.getHistoricalData(req.apiKey!, req.accessToken!, ticker);
+  return sendSuccess(res, 200, 'Fetched historical data successfully', data);
+})
+
+export const handleIntradayData = asyncHandler(async (req, res) => {
+  const { ticker } = req.params;
+  const data = await MstockService.getIntradayData(req.apiKey!, req.accessToken!, ticker);
+  return sendSuccess(res, 200, 'Fetched intraday data successfully', data);
+})
