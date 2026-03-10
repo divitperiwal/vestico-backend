@@ -22,7 +22,8 @@ jobs:
           script: |
             cd /home/ubuntu/momentum-etf-backend
 
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             docker compose down
             docker compose up -d --build
