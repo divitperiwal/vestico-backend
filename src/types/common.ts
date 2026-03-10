@@ -5,6 +5,14 @@ export interface SuccessResponse {
   data?: any;
 }
 
+export interface User {
+  userId: string;
+  email: string;
+  sessionId: string;
+  role: string;
+  broker?: string;
+};
+
 export interface ErrorResponse {
   success: boolean;
   statusCode: number;
@@ -34,3 +42,4 @@ export interface MstockCredentials extends BaseBrokerCredentials {
   apiKey: string;
   totpSecret: string;
 }
+
