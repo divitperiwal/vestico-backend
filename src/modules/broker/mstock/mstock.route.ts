@@ -3,6 +3,7 @@ import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import {
   handleGetEtfPortfolio,
   handleGetFunds,
+  handleGetInstruments,
   handleGetPortfolio,
   handleGetPositions,
   handleGetStockPortfolio,
@@ -30,6 +31,8 @@ router.get('/logout', handleLogout)
 
 //Data
 router.get('/market/connect', handleGetWsConnection);
+
+router.get('/data/instruments', handleGetInstruments);
 router.get('/data/olhc/:ticker', handleOlhcData);
 router.get('/data/historical/:ticker', handleHistoricalData);
 router.get('/data/intraday/:ticker', handleIntradayData);

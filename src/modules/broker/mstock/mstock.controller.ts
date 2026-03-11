@@ -73,3 +73,8 @@ export const handleIntradayData = asyncHandler(async (req, res) => {
   const data = await MstockService.getIntradayData(req.apiKey!, req.accessToken!, ticker);
   return sendSuccess(res, 200, 'Fetched intraday data successfully', data);
 })
+
+export const handleGetInstruments = asyncHandler(async (req, res) => {
+  await MstockService.getInstruments(req.apiKey!, req.accessToken!);
+  return sendSuccess(res, 200, 'Fetched instruments data and added to cache');
+})
