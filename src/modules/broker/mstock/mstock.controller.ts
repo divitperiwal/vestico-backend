@@ -62,11 +62,6 @@ export const handleGetWsConnection = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'Websocket connection established successfully', connection);
 })
 
-export const handleHistoricalData = asyncHandler(async (req, res) => {
-  const { ticker } = req.params;
-  const data = await MstockService.getHistoricalData(req.apiKey!, req.accessToken!, ticker);
-  return sendSuccess(res, 200, 'Fetched historical data successfully', data);
-})
 
 export const handleIntradayData = asyncHandler(async (req, res) => {
   const { ticker } = req.params;

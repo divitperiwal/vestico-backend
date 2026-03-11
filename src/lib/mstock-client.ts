@@ -185,24 +185,4 @@ export class MstockClient {
       );
     }
   }
-
-  static async getHistoricalData(apiKey: string, token: string, instrumentToken: string, startDate: string, endDate: string) {
-    const URL = `https://api.mstock.trade/openapi/typea/instruments/historical/NSE/${instrumentToken}/day?from={${startDate}}&to={${endDate}}`;
-    try {
-      const response = await axios.get(URL, {
-        headers: {
-          'X-Mirae-Version': '1',
-          'Authorization': `token ${apiKey}:${token}`,
-        }
-      });
-
-      return response.data.data;
-    } catch (error: any) {
-      console.log(error);
-      throw new ApiError(
-        error.response.statusText || 'Failed to fetch Mstock Historical data',
-        error.response.status || 500,
-      );
-    }
-  }
 }

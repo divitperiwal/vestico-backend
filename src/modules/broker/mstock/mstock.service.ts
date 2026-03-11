@@ -93,19 +93,6 @@ export class MstockService {
     const data = await MstockClient.getOlhcData(apiKey, token, ticker);
     return data;
   }
-  static async getHistoricalData(apiKey: string, token: string, ticker: string, fromDate: string, toDate: string) {
-    if (!token) throw new ApiError('Access Token not found', 401);
-    if (!apiKey) throw new ApiError('API Key not found', 404);
-
-    const instrumentToken = InstrumentCache.getByTicker(ticker)?.token;
-    if (!instrumentToken) throw new ApiError("Ticker not found", 404);
-
-
-    const data = await MstockClient.getHistoricalData(apiKey, token, String(instrumentToken), fromDate, toDate);
-    return data;
-
-
-  }
 
   static async getIntradayData(apiKey: string, token: string, instrument_token: string) {
     if (!token) throw new ApiError('Access Token not found', 401);

@@ -8,7 +8,6 @@ import {
   handleGetPositions,
   handleGetStockPortfolio,
   handleGetWsConnection,
-  handleHistoricalData,
   handleIntradayData,
   handleLogout,
   handleOlhcData
@@ -34,7 +33,6 @@ router.get('/market/connect', handleGetWsConnection);
 
 router.get('/data/instruments', handleGetInstruments);
 router.get('/data/olhc/:ticker', handleOlhcData);
-router.get('/data/historical/:ticker', handleHistoricalData);
 router.get('/data/intraday/:ticker', handleIntradayData);
 
 export default router;
