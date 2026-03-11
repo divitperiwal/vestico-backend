@@ -6,6 +6,8 @@ import { BrokerService } from '../broker.service.js';
 import { generateTOTP } from '@/utils/helper/totp.js';
 import { AdminService } from '@/modules/admin/admin.service.js';
 import { connectMstock } from './mstock.ws.js';
+import { parseInstruments } from '@/utils/constants/csv-parse.js';
+import { InstrumentCache } from '@/cache/instrument.cache.js';
 
 export class MstockService {
   static async getAccessToken(userId: string, forceRefresh = false) {
@@ -91,16 +93,25 @@ export class MstockService {
     const data = await MstockClient.getOlhcData(apiKey, token, ticker);
     return data;
   }
-  static async getHistoricalData(apiKey: string, token: string, ticker: string) {
-    //Fetch Historical Data for the given ticker
-
-  }
-
-  static async getIntradayData(apiKey: string, token: string, ticker: string) {
+  static async getHistoricalData(apiKey: string, token: string, ticker: string, fromDate: string, toDate: string) {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
 
-    const data = await MstockClient.getIntradayData(apiKey, token, ticker);
+    const instrumentToken = InstrumentCache.getByTicker(ticker)?.token;
+    if (!instrumentToken) throw new ApiError("Ticker not found", 404);
+
+
+    const data = await MstockClient.getHistoricalData(apiKey, token, String(instrumentToken), fromDate, toDate);
+    return data;
+
+
+  }
+
+  static async getIntradayData(apiKey: string, token: string, instrument_token: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    const data = await MstockClient.getIntradayData(apiKey, token, '1', instrument_token, 'minute');
     return data;
   }
 
@@ -115,6 +126,14 @@ export class MstockService {
     return { gainers, losers };
   }
 
+  static async getInstruments(apiKey: string, token: string) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+    const res = await MstockClient.getInstruments(apiKey, token);
+    const data = parseInstruments(res);
+    if (!data) throw new ApiError('Failed to parse instruments data', 500);
+    return data;
+  }
 
   //Websocket
   static async getWsConnection(apiKey: string, token: string) {
