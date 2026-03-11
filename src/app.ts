@@ -8,8 +8,10 @@ import authRoutes from '@/modules/auth/auth.route.js';
 import userRoutes from '@/modules/users/user.route.js';
 import dhanRoutes from '@/modules/broker/dhan/dhan.route.js';
 import mstockRoutes from '@/modules/broker/mstock/mstock.route.js';
+import bffRoutes from '@/modules/bff/bff.route.js';
 import { sendSuccess } from './utils/helper/response.js';
 import { errorHandler, notFound } from './middlewares/error.middleware.js';
+import { wednesdayRebalanceJob, fridayRebalanceJob } from './jobs/ranks.job.js';
 const app = express();
 app.disable('x-powered-by');
 
@@ -28,6 +30,13 @@ app.get('/health', (req, res) => {
   sendSuccess(res, 200, 'Server is healthy', { timestamp: Date.now() });
 });
 
+//Schedule Jobs
+wednesdayRebalanceJob();
+fridayRebalanceJob();
+
+
+//BFF Routes
+app.use('/api/v1/bff', bffRoutes);
 //Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
