@@ -148,7 +148,61 @@ export class MstockClient {
       )
     }
   }
-  static async getIntradayData(apiKey: string, token: string, ticker: string) {
-    const URL = `https://api.mstock.trade/openapi/typea/instruments/intraday/{exchange}/{instrument_token}/{interval}`;
+  static async getIntradayData(apiKey: string, token: string, exchange: string, instrumentToken: string, interval: string) {
+    const URL = `https://api.mstock.trade/openapi/typea/instruments/intraday/${exchange}/${instrumentToken}/${interval}`;
+    try {
+      const response = await axios.get(URL, {
+        headers: {
+          'X-Mirae-Version': '1',
+          'Content-Type': 'application/json',
+          'Authorization': `token ${apiKey}:${token}`
+        }
+      })
+
+      return response.data.data;
+    } catch (error: any) {
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock Intraday data',
+        error.response.status || 500,
+      );
+    }
+  }
+
+  static async getInstruments(apiKey: string, token: string) {
+    const URL = `	https://api.mstock.trade/openapi/typea/instruments/scriptmaster	`;
+    try {
+      const response = await axios.get(URL, {
+        headers: {
+          'X-Mirae-Version': '1',
+          'Authorization': `token ${apiKey}:${token}`
+        }
+      })
+      return response.data;
+    } catch (error: any) {
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock Instruments data',
+        error.response.status || 500,
+      );
+    }
+  }
+
+  static async getHistoricalData(apiKey: string, token: string, instrumentToken: string, startDate: string, endDate: string) {
+    const URL = `https://api.mstock.trade/openapi/typea/instruments/historical/NSE/${instrumentToken}/day?from={${startDate}}&to={${endDate}}`;
+    try {
+      const response = await axios.get(URL, {
+        headers: {
+          'X-Mirae-Version': '1',
+          'Authorization': `token ${apiKey}:${token}`,
+        }
+      });
+
+      return response.data.data;
+    } catch (error: any) {
+      console.log(error);
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock Historical data',
+        error.response.status || 500,
+      );
+    }
   }
 }
