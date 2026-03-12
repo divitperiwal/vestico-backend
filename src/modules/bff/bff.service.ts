@@ -4,7 +4,7 @@ import { MstockService } from "../broker/mstock/mstock.service.js";
 import { UserService } from "../users/user.service.js";
 import { InstrumentCache } from "@/cache/instrument.cache.js";
 import { YFClient } from "@/lib/yahoo-finance.js";
-import { transformPortfolioData } from "@/utils/constants/transform.js";
+import { transformFundsData, transformHistoricalData, transformOlhcData, transformPortfolioData, transformPositionsData, transformTopMoversData } from "@/utils/constants/transform.js";
 
 export class BFFService {
     static async getWebDashboardData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
@@ -22,10 +22,15 @@ export class BFFService {
             MstockService.getTopMovers(apiKey, accessToken)
         ])
 
-        if (portfolio.length > 5) portfolio.splice(5);
-        const holdings = transformPortfolioData(portfolio);
+        return {
+            profile,
+            holdings: transformPortfolioData((portfolio ?? []).slice(0, 5)),
+            movers: {
+                gainers: transformTopMoversData((topMovers.gainers ?? []).slice(0, 5)),
+                losers: transformTopMoversData((topMovers.losers ?? []).slice(0, 5))
+            }
+        }
 
-        return { profile, holdings, topMovers }; 
         //Most Active
         //52 Week High/Low
         //Market Insights
@@ -58,7 +63,7 @@ export class BFFService {
             YFClient.getPeers(ticker)
         ])
 
-        return { olhc, intradayChart, historicalData, fundamentals, peers };
+        return { olhc: transformOlhcData(olhc[`NSE:${instrument.ticker}`] ?? {}), intradayChart, historicalData: transformHistoricalData(historicalData), peers };
 
     }
 
@@ -71,8 +76,8 @@ export class BFFService {
             MstockService.getPortfolio(apiKey, accessToken, user.userId),
             UserService.getUserRecommendation(user.userId)
         ])
-        
-        return { portfolio, recommendation }
+
+        return { portfolio: transformPortfolioData((portfolio ?? [])), recommendation }
     }
 
     static async getWebPositionData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
@@ -80,8 +85,9 @@ export class BFFService {
         if (!accessToken) throw new ApiError("Access Token is required", 400);
         if (!apiKey) throw new ApiError("Api Key is required", 400);
 
-        const positions = await MstockService.getPositions(apiKey, accessToken, user.userId);
-        return positions.net;
+        const rawPositions = await MstockService.getPositions(apiKey, accessToken, user.userId);
+        const positions = transformPositionsData(rawPositions.net);
+        return positions;
     }
 
     static async getWebOrderData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
@@ -102,7 +108,8 @@ export class BFFService {
         if (!accessToken) throw new ApiError("Access Token is required", 400);
         if (!apiKey) throw new ApiError("Api Key is required", 400);
 
-        const funds = await MstockService.getFunds(apiKey, accessToken, user.userId);
+        const rawFunds = await MstockService.getFunds(apiKey, accessToken, user.userId);
+        const funds = transformFundsData(rawFunds[0]);
         return funds;
     }
 }
