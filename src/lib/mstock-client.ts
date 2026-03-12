@@ -102,6 +102,43 @@ export class MstockClient {
     }
   }
 
+  static async getOrderBook(apiKey: string, token: string) {
+    const URL = `https://api.mstock.trade/openapi/typea/orders`
+    try {
+      const response = await axios.get(URL, {
+        headers: {
+          'X-Mirae-Version': '1',
+          Authorization: `token ${apiKey}:${token}`
+        }
+      })
+      return response.data.data
+    } catch (error: any) {
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock Positions',
+        error.response.status || 500,
+      );
+    }
+  }
+
+  static async getTradeBook(apiKey: string, token: string) {
+    const URL = `https://api.mstock.trade/openapi/typea/tradebook`
+    try {
+      const response = await axios.get(URL, {
+        headers: {
+          'X-Mirae-Version': '1',
+          Authorization: `token ${apiKey}:${token}`
+        }
+      })
+
+      return response.data.data
+    } catch (error: any) {
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock Positions',
+        error.response.status || 500,
+      );
+    }
+  }
+
   static async getOlhcData(apiKey: string, token: string, ticker: string) {
     const URL = `https://api.mstock.trade/openapi/typea/instruments/quote/ohlc`;
     const params = new URLSearchParams();

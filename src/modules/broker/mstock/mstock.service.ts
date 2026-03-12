@@ -122,6 +122,32 @@ export class MstockService {
     return data;
   }
 
+
+  //Orders
+  static async getOrderBook(apiKey:string, token:string){
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    const data = await MstockClient.getOrderBook(apiKey, token);
+    return data;
+  }
+
+  static async getTradeBook(apiKey:string, token:string){
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+
+    const data = await MstockClient.getTradeBook(apiKey, token);
+    return data;
+  }
+
+
+
+
+
+
+
+
+
   //Websocket
   static async getWsConnection(apiKey: string, token: string) {
     if (!token) throw new ApiError('Access Token not found', 401);
