@@ -4,6 +4,7 @@ import { MstockService } from "../broker/mstock/mstock.service.js";
 import { UserService } from "../users/user.service.js";
 import { InstrumentCache } from "@/cache/instrument.cache.js";
 import { YFClient } from "@/lib/yahoo-finance.js";
+import { transformPortfolioData } from "@/utils/constants/transform.js";
 
 export class BFFService {
     static async getWebDashboardData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
@@ -15,13 +16,16 @@ export class BFFService {
         //Holdings
         //Top Gainers/Losers
         //User Profile
-        const [profile, holdings, topMovers] = await Promise.all([
+        const [profile, portfolio, topMovers] = await Promise.all([
             UserService.getUserProfile(user.userId),
             MstockService.getPortfolio(apiKey, accessToken, user.userId),
             MstockService.getTopMovers(apiKey, accessToken)
         ])
 
-        return { profile, holdings, topMovers };
+        if (portfolio.length > 5) portfolio.splice(5);
+        const holdings = transformPortfolioData(portfolio);
+
+        return { profile, holdings, topMovers }; 
         //Most Active
         //52 Week High/Low
         //Market Insights
@@ -54,7 +58,51 @@ export class BFFService {
             YFClient.getPeers(ticker)
         ])
 
-        return { olhc, intradayChart, historicalData, fundamentals , peers};
+        return { olhc, intradayChart, historicalData, fundamentals, peers };
 
+    }
+
+    static async getWebPortfolioData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
+        if (!user) throw new ApiError("User is required", 400);
+        if (!accessToken) throw new ApiError("Access Token is required", 400);
+        if (!apiKey) throw new ApiError("Api Key is required", 400);
+
+        const [portfolio, recommendation] = await Promise.all([
+            MstockService.getPortfolio(apiKey, accessToken, user.userId),
+            UserService.getUserRecommendation(user.userId)
+        ])
+        
+        return { portfolio, recommendation }
+    }
+
+    static async getWebPositionData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
+        if (!user) throw new ApiError("User is required", 400);
+        if (!accessToken) throw new ApiError("Access Token is required", 400);
+        if (!apiKey) throw new ApiError("Api Key is required", 400);
+
+        const positions = await MstockService.getPositions(apiKey, accessToken, user.userId);
+        return positions.net;
+    }
+
+    static async getWebOrderData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
+        if (!user) throw new ApiError("User is required", 400);
+        if (!accessToken) throw new ApiError("Access Token is required", 400);
+        if (!apiKey) throw new ApiError("Api Key is required", 400);
+
+        const [orderBook, tradeBook] = await Promise.all([
+            MstockService.getOrderBook(apiKey, accessToken),
+            MstockService.getTradeBook(apiKey, accessToken)
+        ])
+
+        return { orderBook, tradeBook }
+    }
+
+    static async getWebFundsData(user: User | undefined, accessToken: string | undefined, apiKey: string | undefined) {
+        if (!user) throw new ApiError("User is required", 400);
+        if (!accessToken) throw new ApiError("Access Token is required", 400);
+        if (!apiKey) throw new ApiError("Api Key is required", 400);
+
+        const funds = await MstockService.getFunds(apiKey, accessToken, user.userId);
+        return funds;
     }
 }
