@@ -12,6 +12,7 @@ import bffRoutes from '@/modules/bff/bff.route.js';
 import { sendSuccess } from './utils/helper/response.js';
 import { errorHandler, notFound } from './middlewares/error.middleware.js';
 import { wednesdayRebalanceJob, fridayRebalanceJob } from './jobs/ranks.job.js';
+import { loadInstruments, loadInstrumentsJob } from './jobs/instrument.job.js';
 const app = express();
 app.disable('x-powered-by');
 
@@ -30,10 +31,14 @@ app.get('/health', (req, res) => {
   sendSuccess(res, 200, 'Server is healthy', { timestamp: Date.now() });
 });
 
+//Run on server start
+loadInstruments();
+
+
 //Schedule Jobs
 wednesdayRebalanceJob();
 fridayRebalanceJob();
-
+loadInstrumentsJob();
 
 //BFF Routes
 app.use('/api/v1/bff', bffRoutes);
