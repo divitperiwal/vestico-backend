@@ -42,7 +42,6 @@ export class YFClient {
 
     static async getPeers(ticker: string) {
         const data: any = await this.yahooFinance.recommendationsBySymbol(`${ticker}.NS`);
-        console.log(data)
         return data.recommendedSymbols
             .slice(0, 4)
             .map((p: any) =>

@@ -7,7 +7,6 @@ import { generateTOTP } from '@/utils/helper/totp.js';
 import { AdminService } from '@/modules/admin/admin.service.js';
 import { connectMstock } from './mstock.ws.js';
 import { parseInstruments } from '@/utils/constants/csv-parse.js';
-import { InstrumentCache } from '@/cache/instrument.cache.js';
 
 export class MstockService {
   static async getAccessToken(userId: string, forceRefresh = false) {
