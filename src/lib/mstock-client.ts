@@ -205,6 +205,29 @@ export class MstockClient {
     }
   }
 
+  static async getLTP(apiKey: string, token: string, ticker: string[]) {
+    const URL = `https://api.mstock.trade/openapi/typea/instruments/quote/ltp`;
+    const params = new URLSearchParams();
+    for (const t of ticker) {
+      params.append('i', `NSE:${t}`);
+    }
+    try {
+      const response = await axios.get(URL, {
+        params, headers: {
+          'X-Mirae-Version': '1',
+          Authorization: `token ${token}`,
+        }
+      })
+      return response.data.data;
+    } catch (error: any) {
+      throw new ApiError(
+        error.response.statusText || 'Failed to fetch Mstock LTP data',
+        error.response.status || 500,
+      );
+
+    }
+  }
+
   static async getInstruments(apiKey: string, token: string) {
     const URL = `	https://api.mstock.trade/openapi/typea/instruments/scriptmaster	`;
     try {

@@ -73,3 +73,10 @@ export const handleGetInstruments = asyncHandler(async (req, res) => {
   await MstockService.getInstruments(req.apiKey!, req.accessToken!);
   return sendSuccess(res, 200, 'Fetched instruments data and added to cache');
 })
+
+export const handleGetLTP = asyncHandler(async (req, res) => {
+  const { ticker } = req.params;
+  const tickerArray = ticker.split(',').map(t => t.trim());
+  const data = await MstockService.getLTP(req.apiKey!, req.accessToken!, tickerArray);
+  return sendSuccess(res, 200, 'Fetched LTP data successfully', data);
+})

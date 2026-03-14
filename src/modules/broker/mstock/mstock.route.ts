@@ -4,6 +4,7 @@ import {
   handleGetEtfPortfolio,
   handleGetFunds,
   handleGetInstruments,
+  handleGetLTP,
   handleGetPortfolio,
   handleGetPositions,
   handleGetStockPortfolio,
@@ -34,5 +35,6 @@ router.get('/market/connect', handleGetWsConnection);
 router.get('/data/instruments', handleGetInstruments);
 router.get('/data/olhc/:ticker', handleOlhcData);
 router.get('/data/intraday/:ticker', handleIntradayData);
+router.get('/data/ltp/:ticker', handleGetLTP)
 
 export default router;

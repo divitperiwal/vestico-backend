@@ -121,9 +121,17 @@ export class MstockService {
     return data;
   }
 
+  static async getLTP(apiKey: string, token: string, ticker: string[]) {
+    if (!token) throw new ApiError('Access Token not found', 401);
+    if (!apiKey) throw new ApiError('API Key not found', 404);
+    if (ticker.length === 0) throw new ApiError('Ticker is required', 400);
+    const data = await MstockClient.getLTP(apiKey, token, ticker);
+    return data;
+  }
+
 
   //Orders
-  static async getOrderBook(apiKey:string, token:string){
+  static async getOrderBook(apiKey: string, token: string) {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
 
@@ -131,7 +139,7 @@ export class MstockService {
     return data;
   }
 
-  static async getTradeBook(apiKey:string, token:string){
+  static async getTradeBook(apiKey: string, token: string) {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
 
