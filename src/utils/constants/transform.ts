@@ -49,6 +49,7 @@ export const transformHistoricalData = (history: any[]) => {
 }
 
 export const transformPositionsData = (positions: any[]) => {
+    console.log(positions);
     if (positions.length === 0) return [];
     return positions.map((position) => ({
         ticker: position.tradingsymbol,

@@ -33,7 +33,6 @@ export class TickerCache {
 
         for (const [key, value] of Object.entries(data)) {
             if (value == null) continue;
-            console.log(`Setting cache for ticker:${ticker}:${key} with TTL ${ttlMap[key] ?? 3600}s`);
             pipeline.set(
                 `ticker:${ticker}:${key}`,
                 JSON.stringify(value),
