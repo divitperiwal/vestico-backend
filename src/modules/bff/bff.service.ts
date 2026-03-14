@@ -173,6 +173,7 @@ export class BFFService {
         if (!apiKey) throw new ApiError("Api Key is required", 400);
 
         const rawPositions = await MstockService.getPositions(apiKey, accessToken, user.userId);
+        if (!rawPositions || !rawPositions.net) return [];
         const positions = transformPositionsData(rawPositions.net);
         return positions;
     }
