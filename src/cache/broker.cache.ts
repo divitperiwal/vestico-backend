@@ -36,7 +36,7 @@ export class BrokerCache {
   }
 
   static async storePortfolio(userId: string, data: any) {
-    await redis.setex(`broker:portfolio:${userId}`, 240, JSON.stringify(data));
+    await redis.setex(`broker:portfolio:${userId}`, 3600, JSON.stringify(data));
   }
 
   static async delPortfolio(userId: string) {
