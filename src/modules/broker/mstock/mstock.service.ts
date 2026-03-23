@@ -7,6 +7,7 @@ import { generateTOTP } from '@/utils/helper/totp.js';
 import { AdminService } from '@/modules/admin/admin.service.js';
 import { connectMstock } from './mstock.ws.js';
 import { parseInstruments } from '@/utils/constants/csv-parse.js';
+import { MarketCache } from '@/cache/market.cache.js';
 
 export class MstockService {
   static async getAccessToken(userId: string, forceRefresh = false) {
@@ -86,9 +87,10 @@ export class MstockService {
   }
 
   //Data Functions
-  static async getOlhcData(apiKey: string, token: string, ticker: string) {
+  static async getOlhcData(apiKey: string, token: string, ticker: string[]) {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
+    if (ticker.length === 0) throw new ApiError('Ticker is required', 400);
     const data = await MstockClient.getOlhcData(apiKey, token, ticker);
     return data;
   }
@@ -105,10 +107,18 @@ export class MstockService {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
 
+    const cached = await MarketCache.get("movers");
+    if (cached) return JSON.parse(cached);
+
+
     const [gainers, losers] = await Promise.all([
       MstockClient.getTopMovers(apiKey, token, 'g'),
       MstockClient.getTopMovers(apiKey, token, 'l')
     ]);
+
+    const movers = { gainers, losers };
+
+    MarketCache.set("movers", JSON.stringify(movers), 900);
     return { gainers, losers };
   }
 
@@ -125,8 +135,6 @@ export class MstockService {
     if (!token) throw new ApiError('Access Token not found', 401);
     if (!apiKey) throw new ApiError('API Key not found', 404);
     if (ticker.length === 0) throw new ApiError('Ticker is required', 400);
-    const data = await MstockClient.getLTP(apiKey, token, ticker);
-    return data;
   }
 
 

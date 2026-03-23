@@ -53,7 +53,8 @@ export const handleGetPositions = asyncHandler(async (req, res) => {
 
 export const handleOlhcData = asyncHandler(async (req, res) => {
   const { ticker } = req.params;
-  const data = await MstockService.getOlhcData(req.apiKey!, req.accessToken!, ticker);
+  const tickerArray = ticker.split(',').map(t => t.trim().toUpperCase());
+  const data = await MstockService.getOlhcData(req.apiKey!, req.accessToken!, tickerArray);
   return sendSuccess(res, 200, 'Fetched OHLC data successfully', data);
 })
 
@@ -76,7 +77,7 @@ export const handleGetInstruments = asyncHandler(async (req, res) => {
 
 export const handleGetLTP = asyncHandler(async (req, res) => {
   const { ticker } = req.params;
-  const tickerArray = ticker.split(',').map(t => t.trim());
+  const tickerArray = ticker.split(',').map(t => t.trim().toUpperCase());
   const data = await MstockService.getLTP(req.apiKey!, req.accessToken!, tickerArray);
   return sendSuccess(res, 200, 'Fetched LTP data successfully', data);
 })

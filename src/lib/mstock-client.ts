@@ -139,10 +139,12 @@ export class MstockClient {
     }
   }
 
-  static async getOlhcData(apiKey: string, token: string, ticker: string) {
+  static async getOlhcData(apiKey: string, token: string, ticker: string[]) {
     const URL = `https://api.mstock.trade/openapi/typea/instruments/quote/ohlc`;
     const params = new URLSearchParams();
-    params.append('i', ticker);
+    for (const t of ticker) {
+      params.append('i', `NSE:${t}-EQ`);
+    }
     try {
       const response = await axios.get(URL, {
         params,
@@ -202,29 +204,6 @@ export class MstockClient {
         error.response.statusText || 'Failed to fetch Mstock Intraday data',
         error.response.status || 500,
       );
-    }
-  }
-
-  static async getLTP(apiKey: string, token: string, ticker: string[]) {
-    const URL = `https://api.mstock.trade/openapi/typea/instruments/quote/ltp`;
-    const params = new URLSearchParams();
-    for (const t of ticker) {
-      params.append('i', `NSE:${t}`);
-    }
-    try {
-      const response = await axios.get(URL, {
-        params, headers: {
-          'X-Mirae-Version': '1',
-          Authorization: `token ${token}`,
-        }
-      })
-      return response.data.data;
-    } catch (error: any) {
-      throw new ApiError(
-        error.response.statusText || 'Failed to fetch Mstock LTP data',
-        error.response.status || 500,
-      );
-
     }
   }
 
