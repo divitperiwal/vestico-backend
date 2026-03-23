@@ -1,13 +1,36 @@
 import { WebSocketServer } from "ws";
 import { subscriptionManager } from "@/modules/market/subscription.ws.js";
+import { authMiddleware } from "@/middlewares/auth.middleware.js";
+import { runAuthMiddleware } from "@/utils/helper/response.js";
 
 export const startClientSocketServer = (server: any) => {
 
-    const wss = new WebSocketServer({ server });
+    const wss = new WebSocketServer({ noServer: true });
+
+    // Upgrade HTTP connection to WebSocket
+    server.on("upgrade", async (request: any, socket: any, head: any) => {
+        try {
+            await runAuthMiddleware(request, authMiddleware)
+            wss.handleUpgrade(request, socket, head, (ws) => {
+                (ws as any).userId = request.user.userId;
+                wss.emit("connection", ws, request);
+            });
+
+        } catch (error) {
+            socket.write(
+                "HTTP/1.1 401 Unauthorized\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+            );
+            socket.destroy();
+            return;
+        }
+    })
+
 
     wss.on("connection", (client) => {
 
-        console.log("Client connected");
+        console.log(`Client connected: ${(client as any).userId}`);
 
         subscriptionManager.registerClient(client);
 
@@ -33,10 +56,14 @@ export const startClientSocketServer = (server: any) => {
 
         client.on("close", () => {
 
-            console.log("Client disconnected");
+            console.log(`Client disconnected: ${(client as any).userId}`);
             subscriptionManager.removeClient(client);
 
         });
+
+        client.on("error", (err) => {
+            console.log("Backend Websocket Error : ", err)
+        })
 
     });
 
