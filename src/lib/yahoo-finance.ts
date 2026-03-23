@@ -86,4 +86,10 @@ export class YFClient {
                 p.symbol?.replace(/\.(NS|BO)$/, "")
             );
     }
+
+    static async getIndicesLTP(indices: string[]) {
+        const quote = await this.yahooFinance.quote(indices);
+
+        return quote
+    }
 }
