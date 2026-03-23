@@ -30,24 +30,20 @@ export function decodeQuotePacket(buffer: Buffer) {
     let offset = 64;
 
     for (let i = 0; i < 5; i++) {
-
-        const qty = buffer.readInt32BE(offset);
-        const price = buffer.readInt32BE(offset + 4) / 100;
-        const orders = buffer.readInt16BE(offset + 8);
-
-        quote.marketDepth.bids.push({ qty, price, orders });
-
+        quote.marketDepth.bids.push({
+            qty: buffer.readInt32BE(offset),
+            price: buffer.readInt32BE(offset + 4) / 100,
+            orders: buffer.readInt16BE(offset + 8),
+        });
         offset += 12;
     }
 
     for (let i = 0; i < 5; i++) {
-
-        const qty = buffer.readInt32BE(offset);
-        const price = buffer.readInt32BE(offset + 4) / 100;
-        const orders = buffer.readInt16BE(offset + 8);
-
-        quote.marketDepth.asks.push({ qty, price, orders });
-
+        quote.marketDepth.asks.push({
+            qty: buffer.readInt32BE(offset),
+            price: buffer.readInt32BE(offset + 4) / 100,
+            orders: buffer.readInt16BE(offset + 8),
+        });
         offset += 12;
     }
 
@@ -57,6 +53,23 @@ export function decodeQuotePacket(buffer: Buffer) {
     quote.yearLow = buffer.readInt32BE(196) / 100;
 
     return quote;
+}
+
+export function decodeIndexPacket(buffer: Buffer) {
+    return {
+        token: buffer.readUInt32BE(0),
+        ltp: buffer.readInt32BE(4) / 100,
+        high: buffer.readInt32BE(8) / 100,
+        low: buffer.readInt32BE(12) / 100,
+        open: buffer.readInt32BE(16) / 100,
+        close: buffer.readInt32BE(20) / 100,
+        priceChange: buffer.readInt32BE(24) / 100,
+        exchangeTimestamp: buffer.readInt32BE(28),
+        upperCircuit: buffer.readInt32BE(32) / 100,
+        lowerCircuit: buffer.readInt32BE(36) / 100,
+        yearHigh: buffer.readInt32BE(40) / 100,
+        yearLow: buffer.readInt32BE(44) / 100,
+    };
 }
 
 let streamBuffer = Buffer.alloc(0);
