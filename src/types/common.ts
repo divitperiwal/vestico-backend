@@ -43,3 +43,9 @@ export interface MstockCredentials extends BaseBrokerCredentials {
   totpSecret: string;
 }
 
+
+export type Instrument = {
+  token: number,
+  ticker: string,
+  name: string
+}
