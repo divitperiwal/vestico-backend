@@ -13,6 +13,8 @@ import { sendSuccess } from './utils/helper/response.js';
 import { errorHandler, notFound } from './middlewares/error.middleware.js';
 import { wednesdayRebalanceJob, fridayRebalanceJob } from './jobs/ranks.job.js';
 import { loadInstruments, loadInstrumentsJob } from './jobs/instrument.job.js';
+import { connectMstockJob, connectMstockWebSocket } from './jobs/websocket.job.js';
+import { loadAccessTokenJob } from './jobs/token.job.js';
 const app = express();
 app.disable('x-powered-by');
 
@@ -33,12 +35,15 @@ app.get('/health', (req, res) => {
 
 //Run on server start
 loadInstruments();
+connectMstockWebSocket()
 
 
 //Schedule Jobs
 wednesdayRebalanceJob();
 fridayRebalanceJob();
+loadAccessTokenJob();
 loadInstrumentsJob();
+connectMstockJob();
 
 //BFF Routes
 app.use('/api/v1/bff', bffRoutes);
