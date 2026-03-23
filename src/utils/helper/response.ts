@@ -27,3 +27,25 @@ export const sendError = (
 
   return res.status(statusCode).json(response);
 };
+
+export const runAuthMiddleware = (req: any, middleware: any) => {
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      const result = middleware(req, {} as any, (err: any) => {
+        if (err) return reject(err);
+        resolve(true);
+      });
+
+      // handle async middleware
+      if (result instanceof Promise) {
+        result.catch(reject);
+      }
+
+    } catch (err) {
+      reject(err);
+    }
+
+  });
+};

@@ -1,5 +1,6 @@
 import { WebSocket } from "ws";
 import { subscribeTokens, unsubscribeTokens } from "@/modules/broker/mstock/mstock.ws.js";
+import { InstrumentCache } from "@/cache/instrument.cache.js";
 
 class SubscriptionManager {
 
@@ -32,10 +33,11 @@ class SubscriptionManager {
         this.clientSubscriptions.delete(client);
     }
 
-    subscribe(client: WebSocket, tokens: number[]) {
+    subscribe(client: WebSocket, tickers: string[]) {
 
-        tokens.forEach((token) => {
-
+        tickers.forEach((ticker) => {
+            const token = InstrumentCache.getByTicker(ticker)?.token;
+            if (!token) return;
             // client → token
             this.clientSubscriptions.get(client)?.add(token);
 
@@ -51,9 +53,11 @@ class SubscriptionManager {
 
     }
 
-    unsubscribe(client: WebSocket, tokens: number[]) {
+    unsubscribe(client: WebSocket, tickers: string[]) {
 
-        tokens.forEach((token) => {
+        tickers.forEach((ticker) => {
+            const token = InstrumentCache.getByTicker(ticker)?.token;
+            if (!token) return;
 
             const subs = this.tokenSubscribers.get(token);
             if (!subs) return;
@@ -74,7 +78,10 @@ class SubscriptionManager {
 
         const subscribers = this.tokenSubscribers.get(token);
         if (!subscribers) return;
-        const payload = JSON.stringify(data);
+        const payload = JSON.stringify({
+            ticker: InstrumentCache.getByToken(data.token)?.ticker,
+            ...data,
+        });
 
         for (const client of subscribers) {
 
