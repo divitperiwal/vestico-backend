@@ -19,8 +19,9 @@ export class BFFService {
         //Holdings
         //Top Gainers/Losers
         //User Profile
-        const [marketState, profile, portfolio, topMovers] = await Promise.all([
-            YFClient.isMarketOpen(),
+        const [marketState, ltp, profile, portfolio, topMovers] = await Promise.all([
+            this.isMarketOpen(),
+            this.getDashboardLTP(),
             UserService.getUserProfile(user.userId),
             MstockService.getPortfolio(apiKey, accessToken, user.userId),
             MstockService.getTopMovers(apiKey, accessToken)
@@ -29,6 +30,7 @@ export class BFFService {
         return {
             profile,
             marketState,
+            dashboardLTP: ltp,
             holdings: transformPortfolioData((portfolio ?? [])),
             movers: {
                 gainers: transformTopMoversData((topMovers.gainers ?? []).slice(0, 5)),
@@ -70,6 +72,7 @@ export class BFFService {
             }
         }
 
+
         const isMarketOpen = await this.isMarketOpen();
 
 
@@ -103,9 +106,10 @@ export class BFFService {
 
         const olhcPromise = !olhc
             ? isMarketOpen
-                ? MstockService.getOlhcData(apiKey, accessToken, `NSE:${ticker}`)
+                ? MstockService.getOlhcData(apiKey, accessToken, [ticker])
                 : null
             : null;
+
 
         // Fetch missing data in parallel
         const [
@@ -121,6 +125,7 @@ export class BFFService {
             intradayPromise,
             olhcPromise
         ]);
+
 
         if (historicalData) historical = transformHistoricalData(historicalData);
         if (fundamentalsData) fundamentals = fundamentalsData;
@@ -201,19 +206,58 @@ export class BFFService {
         return funds;
     }
 
-    //Private Functions
-    private static async isMarketOpen() {
+
+    static async isMarketOpen() {
         const cached = await MarketCache.get("status");
         if (cached === "open") return true;
         if (cached === "closed") return false;
 
         const isOpen = await YFClient.isMarketOpen();
         if (isOpen) {
-            await MarketCache.set("status", "open", getNextMarketChangeTTL());
+            MarketCache.set("status", "open", getNextMarketChangeTTL());
         } else {
-            await MarketCache.set("status", "closed", getNextMarketChangeTTL());
+            MarketCache.set("status", "closed", getNextMarketChangeTTL());
 
         }
         return isOpen;
+    }
+
+    //Private Functions
+    private static async getDashboardLTP() {
+        const cached = await MarketCache.get("dashboard:tickers");
+        if (cached) return JSON.parse(cached);
+
+        const INDEX_MAP: Record<string, string> = {
+            "^NSEI": "NIFTY50",
+            "^NSEBANK": "BANKNIFTY",
+            "^CNXFINANCE": "FINNIFTY",
+            "^INDIAVIX": "INDIAVIX",
+            "^NSEMDCP50": "NIFTYMIDCAP",
+            "^NSMIDCP": "NIFTYNEXT50",
+            "^BSESN": "SENSEX",
+            "BSE-BANK.BO": "BANKEX"
+        };
+
+        const symbols = Object.keys(INDEX_MAP);
+
+        //Fetch data and market open
+        const [data, isMarketOpen] = await Promise.all([
+            await YFClient.getIndicesLTP(symbols),
+            await this.isMarketOpen()
+        ])
+
+        const formatted = data.map((d: any) => ({
+            ticker: INDEX_MAP[d.symbol] ?? d.symbol,
+            price: d.regularMarketPrice,
+            change: d.regularMarketChange,
+            changePercent: d.regularMarketChangePercent
+        }));
+
+
+        const ttl = isMarketOpen ? 5 : getNextMarketChangeTTL();
+
+        MarketCache.set("dashboard:tickers", JSON.stringify(formatted), ttl);
+
+        return formatted;
     }
 }
