@@ -4,10 +4,15 @@ type Instrument = {
     name: string
 }
 
-const tokenMap = new Map<number, Instrument>();
-const tickerMap = new Map<string, Instrument>();
+let tokenMap = new Map<number, Instrument>();
+let tickerMap = new Map<string, Instrument>();
 
 export const InstrumentCache = {
+    replace(newTokenMap: Map<number, Instrument>, newTickerMap: Map<string, Instrument>) {
+        tokenMap = newTokenMap
+        tickerMap = newTickerMap
+    },
+
     set(instrument: Instrument) {
         tokenMap.set(instrument.token, instrument);
         tickerMap.set(instrument.ticker, instrument);
@@ -20,7 +25,7 @@ export const InstrumentCache = {
     getByTicker(ticker: string) {
         return tickerMap.get(ticker);
     },
-    
+
     getTicker(token: number) {
         return tokenMap.get(token)?.ticker;
     },
