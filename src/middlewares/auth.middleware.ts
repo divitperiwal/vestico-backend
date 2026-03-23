@@ -3,7 +3,7 @@ import { ApiError } from '@/utils/constants/ApiError.js';
 import { readSessionCookie } from '@/utils/helper/cookies.js';
 import type { Request, Response, NextFunction } from 'express';
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: Request , res: Response | any, next: NextFunction) => {
   const sessionId = readSessionCookie(req.headers.cookie);
   if (!sessionId) throw new ApiError('Unauthorized', 401);
 
