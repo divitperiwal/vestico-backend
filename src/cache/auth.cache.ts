@@ -5,16 +5,13 @@ export class AuthCache {
   //Session Operations
   static async getSession(sessionId: string) {
     const key = `session:${sessionId}`;
-    const sessionData = await redis.hgetall(key);
-    if (Object.keys(sessionData).length === 0) return null;
-    return sessionData;
+    const sessionData = await redis.get(key);
+    return sessionData ?? null;
   }
 
-  static async storeSession(sessionId: string, userId: string, role: string, expiresAt: Date) {
+  static async storeSession(sessionId: string, userId: string, expiresAt: Date) {
     const key = `session:${sessionId}`;
-    await redis.hset(key, { userId, role });
-    const expire = calculateTimeToExpiry(expiresAt);
-    await redis.expire(key, expire);
+    await redis.setex(key, calculateTimeToExpiry(expiresAt), userId,);
   }
 
   static async revokeSession(sessionId: string) {

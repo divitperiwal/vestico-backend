@@ -16,10 +16,10 @@ export class AuthService {
     if (!session) throw new ApiError('Invalid Session', 401);
 
     //Get User from Cache
-    let user = await UserCache.getUser(session.userId);
+    let user = await UserCache.getUser(session);
     if (user) return { ...user, sessionId };
 
-    user = await UserDatabase.getUser(session.userId);
+    user = await UserDatabase.getUser(session);
     if (!user) throw new ApiError('User not found', 404);
 
     await UserCache.storeUser(user.userId, user);
@@ -36,17 +36,10 @@ export class AuthService {
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) throw new ApiError('Invalid Credentials', 401);
 
-    //Delete any old session of user if exists
-    const oldSession = await AuthDatabase.getOldSessionByUserId(user.userId);
-    if (oldSession) {
-      await Promise.allSettled([
-        AuthCache.revokeSession(oldSession.sessionId),
-        AuthDatabase.deleteSession(oldSession.sessionId),
-      ]);
-    }
+    //Don't allow more than 2 session for the same user
 
     //Create new session for the user and store in Redis & DB
-    const { sessionId, expiresAt } = await this.createSession(user.userId, user.role);
+    const { sessionId, expiresAt } = await this.createSession(user.userId);
     const csrfToken = generateCsrfToken();
 
     //Cookies
@@ -72,7 +65,7 @@ export class AuthService {
     if (!user) throw new ApiError('Failed to create user', 500);
 
     //Create new session for the user
-    const { sessionId, expiresAt } = await this.createSession(user.userId, user.role);
+    const { sessionId, expiresAt } = await this.createSession(user.userId);
     const csrfToken = generateCsrfToken();
 
     //Cookies
@@ -86,19 +79,15 @@ export class AuthService {
   static async logoutUser(sessionId: string) {
     if (!sessionId) throw new ApiError('Session ID is required', 400);
     await AuthCache.revokeSession(sessionId);
-    await AuthDatabase.deleteSession(sessionId);
-    return
+    return;
   }
 
   //Helper Functions
-  private static async createSession(userId: string, role: string) {
+  private static async createSession(userId: string) {
     const sessionId = generateSessionId();
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
 
-    await Promise.allSettled([
-      AuthCache.storeSession(sessionId, userId, role, expiresAt),
-      AuthDatabase.saveSession(sessionId, userId, expiresAt),
-    ]);
+    await AuthCache.storeSession(sessionId, userId, expiresAt)
 
     return { sessionId, expiresAt };
   }
