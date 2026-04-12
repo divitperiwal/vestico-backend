@@ -1,19 +1,29 @@
-
 services:
   backend:
     build: .
-    container_name: vexit_backend
+    container_name: vestico_backend
     ports:
       - "127.0.0.1:8000:8000"
     env_file:
       - .env
+    environment:
+      - STRATEGY_SERVICE_URL=http://strategy:8001
+    depends_on:
+      - redis
+      - strategy
+    restart: unless-stopped
+
+  strategy:
+    build: ../strategy
+    env_file:
+      - ../strategy/.env
+    container_name: vestico_strategy
     depends_on:
       - redis
     restart: unless-stopped
-
   redis:
     image: redis:7-alpine
-    container_name : vexit_redis
+    container_name: vestico_redis
     command: redis-server --appendonly yes
     restart: unless-stopped
     volumes:
@@ -21,6 +31,5 @@ services:
 
 volumes:
   redis_data:
-    
 
-  
+
