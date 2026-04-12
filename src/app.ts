@@ -34,8 +34,8 @@ app.get('/health', (req, res) => {
 });
 
 //Run on server start
-// loadInstruments();
-// connectMstockWebSocket()
+loadInstruments();
+connectMstockWebSocket()
 
 
 //Schedule Jobs
