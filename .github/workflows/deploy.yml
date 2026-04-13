@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/momentum-etf-backend
+            cd /home/ubuntu/vestico/backend
 
             git fetch origin main
             git reset --hard origin/main
