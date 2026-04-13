@@ -4,7 +4,7 @@ import { ApiError } from '@/utils/constants/ApiError.js';
 import { AuthDatabase } from '../auth/auth.database.js';
 import { comparePassword, hashPassword } from '@/utils/helper/hashing.js';
 import { BrokerService } from '../broker/broker.service.js';
-import { RankGenerator } from '@/lib/generate-rank.js';
+import { StrategyClient } from '@/lib/strategy-client.js';
 
 export class UserService {
   static async getUserProfile(userId: string) {
@@ -48,7 +48,7 @@ export class UserService {
     if (!strategyId) throw new ApiError('User strategy not found', 404);
     //Fetch recommendations
     const filteredPortfolio = await BrokerService.getFilteredPortfolio(userId);
-    const recommendations = await RankGenerator.getRecommendations(strategyId, filteredPortfolio);
+    const recommendations = await StrategyClient.getRecommendations(strategyId, filteredPortfolio);
 
     return recommendations;
   }
