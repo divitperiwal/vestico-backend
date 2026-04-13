@@ -5,7 +5,8 @@ import { decryptData, encryptData } from '@/utils/helper/encryption.js';
 import { UserService } from '../users/user.service.js';
 import { MstockService } from './mstock/mstock.service.js';
 import { DhanService } from './dhan/dhan.service.js';
-import { RankGenerator } from '@/lib/generate-rank.js';
+import { StrategyClient } from '@/lib/strategy-client.js';
+import { MarketCache } from '@/cache/market.cache.js';
 
 export class BrokerService {
   static async getCredentials(userId: string) {
@@ -80,11 +81,16 @@ export class BrokerService {
         break;
     }
     if (portfolio.length === 0) throw new ApiError('Portfolio is empty', 400);
-    const ETF_LIST = (await RankGenerator.getETFs()).map((etf: any) => `${etf.ticker}`);
+    const ETF_LIST = (await this.getETFList()).map((etf: any) => `${etf.ticker}`);
     const name = broker === 'dhan' ? 'tradingSymbol' : 'tradingsymbol';
     const filterport = portfolio
       .filter((item) => ETF_LIST.some((etf: any) => etf == item[name]))
       .map((item) => item[name]);
     return filterport;
+  }
+
+  private static async getETFList() {
+    const ETF_LIST = await StrategyClient.getETFList();
+    return ETF_LIST;
   }
 }
