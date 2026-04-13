@@ -8,8 +8,6 @@ import {
   handleUpdateBrokerCredentials,
   handleRevokeSessionAdmin,
   handleGetUserPortfolio,
-  handleGetRanks,
-  handleGenerateRank,
   handleGetBrokerCredentials,
   handleRegisterUser,
 } from '@/modules/admin/admin.controller.js';
@@ -33,8 +31,6 @@ router.post('/users/:id/broker-credentials', handleUpdateBrokerCredentials);
 router.get('/users/:id/portfolio', handleGetUserPortfolio);
 
 //Get Ranks
-router.get('/ranks/:day', handleGetRanks);
-router.get('/ranks/:day/generate', handleGenerateRank )
 
 //Logout user
 router.get('/users/:id/revoke-session', handleRevokeSessionAdmin);

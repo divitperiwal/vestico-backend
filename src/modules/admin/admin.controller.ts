@@ -7,7 +7,6 @@ import {
   UpdateUserParamsSchema,
   UserParamsSchema,
 } from '@/types/validation/admin.validation.js';
-import { RankGenerator } from '@/lib/generate-rank.js';
 import { RegisterUserSchema } from '@/types/validation/auth.validation.js';
 
 export const handleRegisterUser = asyncHandler(async (req, res) => {
@@ -70,14 +69,3 @@ export const handleGetUserPortfolio = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'User portfolio fetched successfully', portfolio);
 });
 
-export const handleGetRanks = asyncHandler(async (req, res) => {
-  const { day } = req.params;
-  const result = await RankGenerator.getRanks(day);
-  return sendSuccess(res, 200, 'Ranks fetched successfully', result);
-});
-
-export const handleGenerateRank = asyncHandler(async (req, res) => {
-  const { day } = req.params;
-  const result = await RankGenerator.generateRank(day);
-  return sendSuccess(res, 200, 'Ranks generated successfully', result);
-});
