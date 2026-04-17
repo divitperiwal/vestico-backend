@@ -62,7 +62,7 @@ export const startClientSocketServer = (server: any) => {
         });
 
         client.on("error", (err) => {
-            console.log("Backend Websocket Error : ", err)
+            subscriptionManager.removeClient(client);
         })
 
     });
