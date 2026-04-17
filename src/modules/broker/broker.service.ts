@@ -6,7 +6,6 @@ import { UserService } from '../users/user.service.js';
 import { MstockService } from './mstock/mstock.service.js';
 import { DhanService } from './dhan/dhan.service.js';
 import { StrategyClient } from '@/lib/strategy-client.js';
-import { MarketCache } from '@/cache/market.cache.js';
 
 export class BrokerService {
   static async getCredentials(userId: string) {
@@ -48,8 +47,7 @@ export class BrokerService {
 
   static async encryptAndStoreCredentials(userId: string, credentials: any) {
     const encrypted = encryptData(JSON.stringify(credentials));
-    await BrokerCache.storeCredentials(userId, encrypted, credentials.accessTokenExpiry);
-    Promise.allSettled([
+    await Promise.allSettled([
       BrokerDatabase.storeCredentials(userId, encrypted),
       BrokerCache.storeCredentials(userId, encrypted, credentials.accessTokenExpiry),
     ]);

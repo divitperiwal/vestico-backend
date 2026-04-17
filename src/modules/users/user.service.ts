@@ -19,7 +19,7 @@ export class UserService {
     if (!user) throw new Error('User not found');
 
     //Store in cache
-    await UserCache.storeUser(userId, user);
+    UserCache.storeUser(userId, user);
     return user;
   }
 

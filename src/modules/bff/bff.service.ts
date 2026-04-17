@@ -146,7 +146,7 @@ export class BFFService {
         if (peersData) cacheData.peers = peers;
 
         if (Object.keys(cacheData).length > 0) {
-            await TickerCache.set(ticker, cacheData, isMarketOpen);
+            TickerCache.set(ticker, cacheData, isMarketOpen);
         }
 
         return {

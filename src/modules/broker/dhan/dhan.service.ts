@@ -22,7 +22,7 @@ export class DhanService {
     if (cached) return cached;
     const portfolio = await DhanClient.getPortfolio(accessToken);
     if (!portfolio) throw new ApiError('Failed to fetch Dhan portfolio', 500);
-    await BrokerCache.storePortfolio(userId, portfolio);
+    BrokerCache.storePortfolio(userId, portfolio);
     return portfolio;
   }
   static async generateAccessToken(userId: string) {

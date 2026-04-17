@@ -44,12 +44,12 @@ export class MstockService {
 
     try {
       const funds = await MstockClient.getFunds(apiKey, token);
-      await BrokerCache.storeFunds(userId, funds);
+      BrokerCache.storeFunds(userId, funds);
       return funds;
     } catch {
       const { accessToken, apiKey: newKey } = await this.getAccessToken(userId, true);
       const funds = await MstockClient.getFunds(newKey, accessToken);
-      await BrokerCache.storeFunds(userId, funds);
+      BrokerCache.storeFunds(userId, funds);
       return funds;
     }
   }
@@ -62,12 +62,12 @@ export class MstockService {
 
     try {
       const portfolio = await MstockClient.getPortfolio(apiKey, token);
-      await BrokerCache.storePortfolio(userId, portfolio);
+      BrokerCache.storePortfolio(userId, portfolio);
       return portfolio;
     } catch {
       const { accessToken, apiKey: newKey } = await this.getAccessToken(userId, true);
       const portfolio = await MstockClient.getPortfolio(newKey, accessToken);
-      await BrokerCache.storePortfolio(userId, portfolio);
+      BrokerCache.storePortfolio(userId, portfolio);
       return portfolio;
     }
   }
