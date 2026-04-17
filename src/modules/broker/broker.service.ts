@@ -18,6 +18,7 @@ export class BrokerService {
     const response = await BrokerDatabase.getCredentials(userId);
     if (!response || !response.credentials) throw new ApiError('Broker credentials not found', 404);
 
+    console.log(response.credentials)
     const decrypted = JSON.parse(decryptData(response.credentials));
 
     //Store in cache for future requests
@@ -46,6 +47,7 @@ export class BrokerService {
 
   static async encryptAndStoreCredentials(userId: string, credentials: any) {
     const encrypted = encryptData(JSON.stringify(credentials));
+    await BrokerCache.storeCredentials(userId, encrypted, credentials.accessTokenExpiry);
     Promise.allSettled([
       BrokerDatabase.storeCredentials(userId, encrypted),
       BrokerCache.storeCredentials(userId, encrypted, credentials.accessTokenExpiry),
@@ -91,6 +93,7 @@ export class BrokerService {
 
   private static async getETFList() {
     const ETF_LIST = await StrategyClient.getETFList();
-    return ETF_LIST;
+    if (!ETF_LIST || ETF_LIST.length === 0) throw new ApiError('Failed to fetch ETF list', 500);
+    return ETF_LIST.data;
   }
 }
