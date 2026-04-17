@@ -18,11 +18,12 @@ export class BrokerService {
     const response = await BrokerDatabase.getCredentials(userId);
     if (!response || !response.credentials) throw new ApiError('Broker credentials not found', 404);
 
-    console.log(response.credentials)
     const decrypted = JSON.parse(decryptData(response.credentials));
-
+    if (!decrypted.accessToken || !decrypted.accessTokenExpiry || new Date() >= new Date(decrypted.accessTokenExpiry)) {
+      return decrypted
+    }
     //Store in cache for future requests
-    await this.encryptAndStoreCredentials(userId, decrypted);
+    this.encryptAndStoreCredentials(userId, decrypted);
     return decrypted;
   }
 
