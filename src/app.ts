@@ -14,9 +14,12 @@ import { errorHandler, notFound } from './middlewares/error.middleware.js';
 import { loadInstruments, loadInstrumentsJob } from './jobs/instrument.job.js';
 import { connectMstockJob, connectMstockWebSocket } from './jobs/websocket.job.js';
 import { loadAccessTokenJob } from './jobs/token.job.js';
+import statusMonitor from 'express-status-monitor';
+
 const app = express();
 app.disable('x-powered-by');
 
+app.use(statusMonitor())
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json());
