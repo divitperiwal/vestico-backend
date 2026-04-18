@@ -6,7 +6,7 @@ import { BrokerService } from '../broker.service.js';
 export const handleDhanCallback = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
   const { tokenId } = req.query;
-  const result = await DhanService.consumeConsdaentToken(userId, tokenId as string);
+  const result = await DhanService.consumeConsentToken(userId, tokenId as string);
   res.redirect(`${process.env.CORS_ORIGIN}/dhan/callback?status=success`);
 });
 export const handleGenerateConsentToken = asyncHandler(async (req, res) => {
