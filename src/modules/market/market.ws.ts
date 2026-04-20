@@ -1,7 +1,6 @@
 import { WebSocketServer } from "ws";
 import { subscriptionManager } from "@/modules/market/subscription.ws.js";
-import { authMiddleware } from "@/middlewares/auth.middleware.js";
-import { runAuthMiddleware } from "@/utils/helper/response.js";
+import { runAuthMiddlewareWS } from "@/utils/helper/response.js";
 
 export const startClientSocketServer = (server: any) => {
 
@@ -10,7 +9,8 @@ export const startClientSocketServer = (server: any) => {
     // Upgrade HTTP connection to WebSocket
     server.on("upgrade", async (request: any, socket: any, head: any) => {
         try {
-            await runAuthMiddleware(request, authMiddleware)
+            await runAuthMiddlewareWS(request);
+
             wss.handleUpgrade(request, socket, head, (ws) => {
                 (ws as any).userId = request.user.userId;
                 wss.emit("connection", ws, request);

@@ -1,5 +1,7 @@
 import type { SuccessResponse, ErrorResponse } from '@/types/common.js';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
+import { ApiError } from '../constants/ApiError.js';
+import { AuthService } from '@/modules/auth/auth.service.js';
 
 export const sendSuccess = (res: Response, statusCode = 200, message = 'Success', data?: any) => {
   const response: SuccessResponse = {
@@ -28,24 +30,24 @@ export const sendError = (
   return res.status(statusCode).json(response);
 };
 
-export const runAuthMiddleware = (req: any, middleware: any) => {
-  return new Promise((resolve, reject) => {
+export const runAuthMiddlewareWS = async (req: Request) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const sessionId = url.searchParams.get("session");
+  if (!sessionId) throw new ApiError('Unauthorized', 401);
 
-    try {
+  const data = await AuthService.validateSession(sessionId);
+  if (!data) throw new ApiError('Unauthorized', 401);
 
-      const result = middleware(req, {} as any, (err: any) => {
-        if (err) return reject(err);
-        resolve(true);
-      });
+  if (!data.userId || !data.email || !data.sessionId || !data.role) {
+    throw new ApiError('Unauthorized', 401);
+  }
+  req.user = {
+    userId: data.userId,
+    email: data.email,
+    sessionId: data.sessionId,
+    broker: data.broker,
+    role: data.role,
+  };
 
-      // handle async middleware
-      if (result instanceof Promise) {
-        result.catch(reject);
-      }
-
-    } catch (err) {
-      reject(err);
-    }
-
-  });
-};
+  return;
+}
