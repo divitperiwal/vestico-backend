@@ -93,6 +93,6 @@ export class BrokerService {
   private static async getETFList() {
     const ETF_LIST = await StrategyClient.getETFList();
     if (!ETF_LIST || ETF_LIST.length === 0) throw new ApiError('Failed to fetch ETF list', 500);
-    return ETF_LIST.data;
+    return ETF_LIST;
   }
 }
