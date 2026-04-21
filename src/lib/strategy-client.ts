@@ -7,10 +7,11 @@ export class StrategyClient {
             strategyId,
             portfolio
         });
-        return response.data;
+        return response.data.data;
     }
     static async getETFList() {
         const response = await axios.get(`${this.URL}/api/v1/strategy/etf`);
-        return response.data;
+        return response.data.data;
     }
 }
+StrategyClient.getETFList()
