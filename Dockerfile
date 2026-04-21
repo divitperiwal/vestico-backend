@@ -10,6 +10,7 @@ COPY src/ src/
 COPY tsconfig.json tsconfig.json
 
 RUN npm run build
+RUN npm prune --omit=dev
 
 
 #Step 2
@@ -21,5 +22,5 @@ COPY --from=builder build/package*.json .
 COPY --from=builder build/node_modules node_modules/
 COPY --from=builder build/dist dist/
 
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
 
