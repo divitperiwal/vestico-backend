@@ -14,4 +14,3 @@ export class StrategyClient {
         return response.data.data;
     }
 }
-StrategyClient.getETFList()
