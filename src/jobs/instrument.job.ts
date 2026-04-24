@@ -6,7 +6,7 @@ export const loadInstrumentsJob = () => {
     // Schedule to run every day at 8:30 AM
     cron.schedule('30 8 * * 1-5', async () => {
         await loadInstruments(true);
-    })
+    }, { timezone: "Asia/Kolkata" });
 }
 
 export const loadInstruments = async (refresh = false) => {

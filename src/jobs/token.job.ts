@@ -7,5 +7,5 @@ export const loadAccessTokenJob = () => {
         console.log('Running access token job');
         await MstockService.getAccessToken(DEFAULT_USERID, true);
         console.log('Finished access token job');
-    })
+    }, { timezone: 'Asia/Kolkata' });
 }
