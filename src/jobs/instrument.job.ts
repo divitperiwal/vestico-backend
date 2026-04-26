@@ -5,14 +5,19 @@ import cron from "node-cron";
 export const loadInstrumentsJob = () => {
     // Schedule to run every day at 8:30 AM
     cron.schedule('30 8 * * 1-5', async () => {
-        await loadInstruments(true);
+        await loadInstruments();
     }, { timezone: "Asia/Kolkata" });
 }
 
 export const loadInstruments = async (refresh = false) => {
-    console.log('Running instrument job');
-    const accessToken = await MstockService.getAccessToken(DEFAULT_USERID, refresh);
+    try {
+        console.log('Running instrument job');
+        const accessToken = await MstockService.getAccessToken(DEFAULT_USERID, refresh);
+        await MstockService.getInstruments(accessToken.apiKey, accessToken.accessToken);
+        console.log('Finished instrument job');
 
-    await MstockService.getInstruments(accessToken.apiKey, accessToken.accessToken);
-    console.log('Finished instrument job');
+    } catch (error) {
+        console.log('Error in instrument job', error);
+    }
+
 }
