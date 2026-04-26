@@ -1,4 +1,4 @@
-import { db } from '@/config/drizzle.config.js';
+import { db } from '@/config/database.config.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
 import { broker_credentials, sessions, users } from '@/database/schema/index.js';
 import { eq } from 'drizzle-orm';

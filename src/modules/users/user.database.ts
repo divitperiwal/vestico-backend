@@ -1,4 +1,4 @@
-import { db } from '@/config/drizzle.config.js';
+import { db } from '@/config/database.config.js';
 import { broker_credentials } from '@/database/schema/broker_credentials.schema.js';
 import { users } from '@/database/schema/user.schema.js';
 import { ApiError } from '@/utils/constants/ApiError.js';
