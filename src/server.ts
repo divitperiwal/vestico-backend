@@ -1,3 +1,7 @@
+import { setupGlobalErrorHandlers } from "./utils/constants/error-handler-g.js";
+
+setupGlobalErrorHandlers();
+
 import http from "http";
 import app from './app.js';
 import { startClientSocketServer } from "./modules/market/market.ws.js";
