@@ -1,4 +1,18 @@
 services:
+  migrate:
+    build: .
+    container_name: vestico_migrate
+    command: ["bun", "run", "db:migrate"]
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/vestico
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: "no"
   backend:
     build: .
     container_name: vestico_backend
@@ -8,10 +22,18 @@ services:
       - .env
     environment:
       - STRATEGY_SERVICE_URL=http://strategy:8001
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/vestico
     depends_on:
-      - redis
-      - strategy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+      strategy:
+        condition: service_started
     restart: unless-stopped
+    networks:
+      - internal
+      - public
 
   strategy:
     build: ../strategy
@@ -21,6 +43,8 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+    networks:
+      - internal
   redis:
     image: redis:7-alpine
     container_name: vestico_redis
@@ -28,8 +52,33 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    networks:
+      - internal
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: vestico_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: vestico
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vestico"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   redis_data:
+  postgres_data:
 
-
+networks:
+  internal: 
+    internal: true
+  public:
+    driver: bridge
