@@ -1,5 +1,5 @@
-import { DEFAULT_USERID } from "@/constant.js";
-import { MstockService } from "@/modules/broker/mstock/mstock.service.js";
+import { DEFAULT_USERID } from "@/constant";
+import { MstockService } from "@/modules/broker/providers/mstock/mstock.service";
 import cron from "node-cron";
 
 export const loadInstrumentsJob = () => {
@@ -9,11 +9,11 @@ export const loadInstrumentsJob = () => {
     }, { timezone: "Asia/Kolkata" });
 }
 
-export const loadInstruments = async (refresh = false) => {
+export const loadInstruments = async () => {
     try {
         console.log('Running instrument job');
-        const accessToken = await MstockService.getAccessToken(DEFAULT_USERID, refresh);
-        await MstockService.getInstruments(accessToken.apiKey, accessToken.accessToken);
+        const response = await MstockService.getAccessToken(DEFAULT_USERID);
+        await MstockService.getInstruments(response.apiKey, response.accessToken);
         console.log('Finished instrument job');
 
     } catch (error) {

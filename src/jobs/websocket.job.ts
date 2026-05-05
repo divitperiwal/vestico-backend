@@ -1,6 +1,6 @@
 import { DEFAULT_USERID } from "@/constant.js";
-import { MstockService } from "@/modules/broker/mstock/mstock.service.js";
-import { connectMstock, getMstockSocket } from "@/modules/broker/mstock/mstock.ws.js";
+import { MstockService } from "@/modules/broker/providers/mstock/mstock.service.js";
+import { connectMstock, getMstockSocket } from "@/modules/broker/providers/mstock/mstock.ws.js";
 import cron from "node-cron";
 
 
