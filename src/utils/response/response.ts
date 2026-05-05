@@ -1,6 +1,6 @@
 import type { SuccessResponse, ErrorResponse } from '@/types/common.js';
 import type { Request, Response } from 'express';
-import { ApiError } from '../constants/ApiError.js';
+import { ApiError } from '@/utils/response/error.js';
 import { AuthService } from '@/modules/auth/auth.service.js';
 
 export const sendSuccess = (res: Response, statusCode = 200, message = 'Success', data?: any) => {
