@@ -1,0 +1,106 @@
+import { ApiError } from "@/utils/constants/ApiError";
+import { BrokerService } from "../broker.service";
+import { generateTOTP } from "@/utils/helper/totp";
+import { MstockClient } from "@/lib/mstock-client";
+import { getMiraeTokenExpiry } from "@/utils/helper/expiry";
+import { BrokerCache } from "@/cache/broker.cache";
+import { MarketCache } from "@/cache/market.cache";
+import { parseInstruments } from "@/utils/constants/csv-parse";
+
+export const MstockService = {
+  generateAccessToken: async (userId: string) => {
+    if (!userId) throw new ApiError('User ID not found', 404);
+    const { apiKey, totpKey } = await BrokerService.getCredentials(userId);
+    if (!apiKey || !totpKey) throw new ApiError('Mstock credentials not found', 404);
+
+    const totp = generateTOTP(totpKey);
+    const accessToken = await MstockClient.getAccessToken(apiKey, totp);
+
+    const expiry = getMiraeTokenExpiry()
+
+    await BrokerService.storeCredentials(userId, { apiKey, totpKey, accessToken, accessTokenExpiry: expiry });
+    return { accessToken, apiKey, accessTokenExpiry: expiry };
+  },
+
+  getAccessToken: async (userId: string): Promise<{ accessToken: string; apiKey: string; }> => {
+    const { accessToken, accessTokenExpiry, apiKey } = await BrokerService.getCredentials(userId);
+    if (!accessToken || !accessTokenExpiry || new Date() >= new Date(accessTokenExpiry)) {
+      const { accessToken, apiKey } = await MstockService.generateAccessToken(userId);
+      return { accessToken, apiKey };
+    }
+
+    return { accessToken, apiKey };
+  },
+
+  // Other service methods like getFunds, getPortfolio, etc. will go here
+  getPortfolio: async (userId: string, apiKey: string, token: string) => {
+    const cached = await BrokerCache.getPortfolio(userId);
+    if (cached) return cached;
+
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+
+    const portfolio = await MstockClient.getPortfolio(apiKey, token);
+    BrokerCache.storePortfolio(userId, portfolio);
+
+    return portfolio;
+  },
+
+  getFunds: async (userId: string, apiKey: string, token: string) => {
+    const cached = await BrokerCache.getFunds(userId);
+    if (cached) return cached;
+
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+    const funds = await MstockClient.getFunds(apiKey, token);
+    BrokerCache.storeFunds(userId, funds);
+
+    return funds;
+  },
+
+  getPosition: async (userId: string, apiKey: string, token: string) => {
+  },
+
+  //Universal Data Related Functions
+  getIntradayData: async (apiKey: string, token: string, instrument_token: string) => {
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+    const data = await MstockClient.getIntradayData(apiKey, token, '1', instrument_token, 'minute');
+    return data;
+  },
+
+  getOLHCData: async (apiKey: string, token: string, ticker: string[]) => {
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+    if (ticker.length === 0) throw new ApiError('Ticker list cannot be empty', 400);
+
+    const data = await MstockClient.getOlhcData(apiKey, token, ticker);
+    return data;
+
+  },
+
+  getTopMovers: async (apiKey: string, token: string) => {
+    const cached = await MarketCache.get("movers");
+    if (cached) return cached;
+
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+
+
+    const [gainers, losers] = await Promise.all([
+      MstockClient.getTopMovers(apiKey, token, 'g'),
+      MstockClient.getTopMovers(apiKey, token, 'l')
+    ]);
+
+    const movers = { gainers, losers };
+
+    MarketCache.set("movers", movers, 900);
+    return { gainers, losers };
+
+  },
+
+  getInstruments: async (apiKey: string, token: string) => {
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+
+    const response = await MstockClient.getInstruments(apiKey, token);
+    const data = parseInstruments(response);
+    if (!data) throw new ApiError('Failed to parse instruments data', 500);
+    return data;
+  },
+
+}
