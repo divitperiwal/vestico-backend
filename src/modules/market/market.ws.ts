@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import { subscriptionManager } from "@/modules/market/subscription.ws.js";
-import { runAuthMiddlewareWS } from "@/utils/helper/response.js";
+import { runAuthMiddlewareWS } from "@/utils/response/response.js";
 
 export const startClientSocketServer = (server: any) => {
 

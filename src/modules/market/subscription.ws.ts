@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { subscribeTokens, unsubscribeTokens } from "@/modules/broker/mstock/mstock.ws.js";
+import { subscribeTokens, unsubscribeTokens } from "@/modules/broker/providers/mstock/mstock.ws.js";
 import { InstrumentCache } from "@/cache/instrument.cache.js";
 
 class SubscriptionManager {

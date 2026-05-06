@@ -1,4 +1,4 @@
-import { setupGlobalErrorHandlers } from "./utils/constants/error-handler-g.js";
+import { setupGlobalErrorHandlers } from "@/utils/response/error.js";
 
 setupGlobalErrorHandlers();
 

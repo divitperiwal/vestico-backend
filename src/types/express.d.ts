@@ -1,13 +1,9 @@
+import type { User } from "./common";
+
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        userId: string;
-        email: string;
-        sessionId: string;
-        role: string;
-        broker?: string;
-      };
+      user?: User
       accessToken?: string;
       apiKey?: string;
     }

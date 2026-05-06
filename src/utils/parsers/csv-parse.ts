@@ -1,5 +1,5 @@
 import { InstrumentCache } from "@/cache/instrument.cache.js";
-import { CUSTOM_INSTRUMENTS } from "@/utils/constants/indices.constant.js";
+import { CUSTOM_INSTRUMENTS } from "@/constant";
 import type { Instrument } from "@/types/common.js";
 
 export function parseInstruments(csv: string) {
@@ -9,14 +9,17 @@ export function parseInstruments(csv: string) {
     const newTickerMap = new Map<string, Instrument>()
 
     for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(",");
+        const row = rows[i];
+        if (!row) continue;
+
+        const cols = row.split(",");
 
         if (cols[11] !== "NSE" || cols[9] !== "EQ") continue;
 
         const instrument: Instrument = {
             token: Number(cols[0]),
-            ticker: cols[2],
-            name: cols[3]
+            ticker: cols[2]!,
+            name: cols[3]!
         };
 
         newTokenMap.set(instrument.token, instrument);
