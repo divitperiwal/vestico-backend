@@ -1,4 +1,4 @@
-import { sendError } from '@/utils/helper/response.js';
+import { sendError } from '@/utils/response/response.js';
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 
@@ -7,7 +7,7 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
   if (error.name === 'UnauthorizedError') return sendError(res, 401, 'Unauthorized Access', error);
 
   if (error instanceof ZodError)
-    return sendError(res, 400, error.issues[0].message || 'Validation Error', error.issues);
+    return sendError(res, 400, error.issues[0]?.message || 'Validation Error', error.issues);
 
   return sendError(
     res,

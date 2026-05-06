@@ -1,4 +1,4 @@
-import { ApiError } from '@/utils/constants/ApiError.js';
+import { ApiError } from '@/utils/response/error.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export const checkAdminMiddleware = (req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,6 @@
-import { DhanService } from '@/modules/broker/dhan/dhan.service.js';
-import { MstockService } from '@/modules/broker/mstock/mstock.service.js';
-import { ApiError } from '@/utils/constants/ApiError.js';
+import { DhanService } from '@/modules/broker/providers/dhan/dhan.service.js';
+import { MstockService } from '@/modules/broker/providers/mstock/mstock.service.js';
+import { ApiError } from '@/utils/response/error.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export const accessTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
