@@ -1,55 +1,51 @@
-import { UserCache } from '@/cache/user.cache.js';
-import { UserDatabase } from './user.database.js';
-import { ApiError } from '@/utils/constants/ApiError.js';
-import { AuthDatabase } from '../auth/auth.database.js';
-import { comparePassword, hashPassword } from '@/utils/helper/hashing.js';
-import { BrokerService } from '../broker/broker.service.js';
-import { StrategyClient } from '@/lib/strategy-client.js';
+import { UserCache } from '@/modules/users/user.cache.js';
+import { UserRepository } from './user.repository.js';
+import { ApiError } from '@/utils/response/error.js';
+import { comparePassword, hashPassword } from '@/utils/security/hashing.js';
+import { StrategyClient } from '@/integrations/strategy/strategy-client.js';
 
-export class UserService {
-  static async getUserProfile(userId: string) {
-    if (!userId) throw new Error('Unauthorized');
 
-    //Fetch from Cache
-    const cached = await UserCache.getUser(userId);
+export const UserService = {
+  getUser: async (userId: string) => {
+    if (!userId) throw new ApiError('Unauthorized', 401);
+
+    const cached = await UserCache.get(userId);
     if (cached) return cached;
 
-    //Fetch from DB
-    const user = await UserDatabase.getUser(userId);
-    if (!user) throw new Error('User not found');
+    const user = await UserRepository.getUser(userId)
+    if (!user) throw new ApiError('User not found', 404);
 
-    //Store in cache
-    UserCache.storeUser(userId, user);
+    UserCache.set(userId, user);
     return user;
-  }
+  },
 
-  static async changePassword(userId:string, oldPassword: string, newPassword: string) {
-    if(!userId) throw new ApiError('Unauthorized', 401);
-    if (!oldPassword || !newPassword)
-      throw new ApiError('Old password and new password are required', 400);
+  changePassword: async (userId: string, oldPassword: string, newPassword: string) => {
+    if (!userId) throw new ApiError('Unauthorized', 401);
+    if (!oldPassword || !newPassword) throw new ApiError('Old password and new password are required', 400);
 
-    const user = await AuthDatabase.getUserWithPasswordByUserId(userId);
+    const user = await UserRepository.getUserWithPassword(userId);
     if (!user) throw new ApiError('User not found', 404);
 
     const isOldPasswordValid = await comparePassword(oldPassword, user.password);
     if (!isOldPasswordValid) throw new ApiError('Old password is incorrect', 400);
 
-    //Hashing the new password and updating it in the database
     const newPasswordHash = await hashPassword(newPassword);
-    await UserDatabase.updateUserPassword(userId, newPasswordHash);
+    await UserRepository.updatePassword(userId, newPasswordHash);
 
-    return;
-  }
+    return true;
+  },
 
-  static async getUserRecommendation(userId: string) {
+  getRecommendation: async (userId: string) => {
     if (!userId) throw new ApiError('Unauthorized', 401);
-    const user = await this.getUserProfile(userId);
-    const strategyId = user.strategy;
-    if (!strategyId) throw new ApiError('User strategy not found', 404);
-    //Fetch recommendations
-    const filteredPortfolio = await BrokerService.getFilteredPortfolio(userId);
-    const recommendations = await StrategyClient.getRecommendations(strategyId, filteredPortfolio);
 
-    return recommendations;
+    const user = await UserService.getUser(userId);
+    const strategyId = user.strategy;
+
+    if (!strategyId) throw new ApiError('User strategy not found', 404);
+
+    //Add Portfolio Filteration
+    const filtered = ["ABC"]
+    const recommendation = await StrategyClient.getRecommendations(strategyId, filtered);
+    return recommendation;
   }
 }
