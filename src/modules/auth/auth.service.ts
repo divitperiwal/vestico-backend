@@ -1,45 +1,39 @@
-import { AuthCache } from '@/cache/auth.cache.js';
-import { UserCache } from '@/cache/user.cache.js';
-import { ApiError } from '@/utils/constants/ApiError.js';
-import { AuthDatabase } from './auth.database.js';
-import { comparePassword, hashPassword } from '@/utils/helper/hashing.js';
-import { generateCsrfToken, generateSessionId } from '@/utils/constants/tokenGeneration.js';
-import { SESSION_DURATION_MS } from '@/constant.js';
-import { createCsrfCookie, createSessionCookie } from '@/utils/helper/cookies.js';
-import { UserDatabase } from '../users/user.database.js';
+import { AuthCache } from '@/modules/auth/auth.cache.js';
+import { UserCache } from '@/modules/users/user.cache.js';
+import { ApiError } from '@/utils/response/error.js';
+import { AuthRepository } from './auth.repository.js';
+import { comparePassword } from '@/utils/security/hashing.js';
+import { generateCsrfToken } from '@/utils/response/token.js';
+import { createCsrfCookie, createSessionCookie } from '@/utils/response/cookies.js';
+import { createSession } from '@/utils/security/session.js';
+import { UserRepository } from '@/modules/users/user.repository.js';
 
-export class AuthService {
-  //Session Operations
-  static async validateSession(sessionId: string) {
-    //Check if session exists in redis
+export const AuthService = {
+  validateSession: async (sessionId: string) => {
     const session = await AuthCache.getSession(sessionId);
     if (!session) throw new ApiError('Invalid Session', 401);
 
-    //Get User from Cache
-    let user = await UserCache.getUser(session);
-    if (user) return { ...user, sessionId };
+    const cached = await UserCache.get(session);
+    if (cached) return { ...cached, sessionId };
 
-    user = await UserDatabase.getUser(session);
+    const user = await UserRepository.getUser(session);
     if (!user) throw new ApiError('User not found', 404);
 
-    await UserCache.storeUser(user.userId, user);
+    UserCache.set(user.userId, user);
     return { ...user, sessionId };
-  }
+  },
 
-  //Login User
-  static async loginUser(username: string, password: string) {
+  login: async (username: string, password: string) => {
     if (!username || !password) throw new ApiError('Username and Password are required', 400);
-    const user = await AuthDatabase.getUserWithPassword(username);
+    const user = await AuthRepository.findUserWithPassword(username);
     if (!user) throw new ApiError('Invalid Credentials', 401);
 
-    //Check user's password
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) throw new ApiError('Invalid Credentials', 401);
 
     //Don't allow more than 2 session for the same user
 
-    //Create new session for the user and store in Redis & DB
-    const { sessionId, expiresAt } = await this.createSession(user.userId);
+    const { sessionId, expiresAt } = await createSession(user.userId);
     const csrfToken = generateCsrfToken();
 
     //Cookies
@@ -52,43 +46,12 @@ export class AuthService {
       role: user.role,
     }
     return { sessionCookie, csrfCookie, user: userWithoutPassword };
-  }
+  },
 
-  //Register User
-  static async registerUser(username: string, email: string, password: string, name: string) {
-    if (!username || !email || !password || !name)
-      throw new ApiError('Username, Email, Password and Name are required', 400);
-    const exisitingUser = await AuthDatabase.getUserWithPassword(username);
-    if (exisitingUser) throw new ApiError('User with this username already exists', 409);
-    const passwordHash = await hashPassword(password);
-    const user = await AuthDatabase.createUser(username, email, passwordHash, name);
-    if (!user) throw new ApiError('Failed to create user', 500);
-
-    //Create new session for the user
-    const { sessionId, expiresAt } = await this.createSession(user.userId);
-    const csrfToken = generateCsrfToken();
-
-    //Cookies
-    const sessionCookie = createSessionCookie(sessionId);
-    const csrfCookie = createCsrfCookie(csrfToken);
-
-    return { sessionCookie, csrfCookie, user: { userId: user.userId, username: user.username, name: user.name, role: user.role } };
-  }
-
-  //Logout User
-  static async logoutUser(sessionId: string) {
+  logout: async (sessionId: string) => {
     if (!sessionId) throw new ApiError('Session ID is required', 400);
     await AuthCache.revokeSession(sessionId);
     return;
   }
-
-  //Helper Functions
-  private static async createSession(userId: string) {
-    const sessionId = generateSessionId();
-    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
-
-    await AuthCache.storeSession(sessionId, userId, expiresAt)
-
-    return { sessionId, expiresAt };
-  }
 }
+

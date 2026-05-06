@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import { handleLogin, handleLogout, handleRegister } from '@/modules/auth/auth.controller.js';
+import { AuthController } from '@/modules/auth/auth.controller';
 
 const router = Router();
 
 //Authentication Routes
 
-router.post('/login', handleLogin);
-router.post('/register', handleRegister);
-
-router.get('/logout', handleLogout);
+router.post('/login', AuthController.login);
+router.get('/logout', AuthController.logout);
 
 export default router;
