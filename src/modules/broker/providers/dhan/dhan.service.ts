@@ -1,8 +1,8 @@
-import { ApiError } from "@/utils/constants/ApiError";
+import { ApiError } from "@/utils/response/error";
 import { BrokerService } from "@/modules/broker/broker.service";
-import { generateTOTP } from "@/utils/helper/totp";
-import { DhanClient } from "@/lib/dhan-client";
-import { BrokerCache } from "@/cache/broker.cache";
+import { generateTOTP } from "@/utils/security/totp";
+import { DhanClient } from "@/integrations/dhan/dhan-client";
+import { BrokerCache } from "@/modules/broker/broker.cache";
 
 export const DhanService = {
     generateAccessToken: async (userId: string) => {
@@ -44,5 +44,14 @@ export const DhanService = {
         const funds = await DhanClient.getFunds(accessToken);
         BrokerCache.storeFunds(userId, funds);
         return funds;
+    },
+    getPositions: async (userId: string, accessToken: string) => {
+        const cached = await BrokerCache.getPositions(userId);
+        if (cached != null) return cached;
+        
+        if (!accessToken) throw new ApiError('Access token not found', 404);
+        const positions = await DhanClient.getPositions(accessToken);
+        BrokerCache.storePositions(userId, positions);
+        return positions;
     }
 }

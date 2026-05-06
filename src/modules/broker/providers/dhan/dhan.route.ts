@@ -1,4 +1,4 @@
-import { DhanController } from '@/modules/broker/dhan/dhan.controller';
+import { DhanController } from './dhan.controller';
 import { accessTokenMiddleware } from '@/middlewares/access-token.js';
 import { authMiddleware } from '@/middlewares/auth.middleware.js';
 import Router from 'express';

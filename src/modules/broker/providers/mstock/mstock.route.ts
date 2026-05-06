@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { MstockController } from "@/modules/broker/mstock/mstock.controller";
+import { MstockController } from "./mstock.controller";
 import { authMiddleware } from '@/middlewares/auth.middleware';
 import { accessTokenMiddleware } from '@/middlewares/access-token';
 
@@ -11,8 +11,8 @@ router.use(authMiddleware);
 //Routes
 router.use(accessTokenMiddleware);
 router.get('/portfolio', MstockController.getPortfolio);
+router.get('/positions', MstockController.getPositions); 
 router.get('/funds', MstockController.getFunds);
-// router.get('/positions', MstockController.getPositions);
 
 //Data
 router.get('/data/instruments', MstockController.getInstruments);

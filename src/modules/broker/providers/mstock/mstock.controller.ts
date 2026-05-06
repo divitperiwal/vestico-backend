@@ -1,8 +1,8 @@
-import { asyncHandler } from "@/utils/constants/asyncHandler";
+import { asyncHandler } from "@/utils/response/async";
 import type { Request, Response } from "express";
 import { MstockService } from "./mstock.service";
-import { ApiError } from "@/utils/constants/ApiError";
-import { sendSuccess } from "@/utils/helper/response";
+import { ApiError } from "@/utils/response/error";
+import { sendSuccess } from "@/utils/response/response";
 
 
 export const MstockController = {
@@ -13,6 +13,15 @@ export const MstockController = {
 
     const portfolio = await MstockService.getPortfolio(apiKey, accessToken, userId)
     sendSuccess(res, 200, "Fetched Portfolio Successfully", portfolio)
+  }),
+
+  getPositions: asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId
+    const { apiKey, accessToken } = req
+    if (!userId || !apiKey || !accessToken) throw new ApiError("Missing required parameters", 400)
+
+    const positions = await MstockService.getPositions(apiKey, accessToken, userId)
+    sendSuccess(res, 200, "Fetched Positions Successfully", positions)
   }),
 
   getFunds: asyncHandler(async (req: Request, res: Response) => {

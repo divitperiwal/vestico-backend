@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { subscriptionManager } from "@/modules/market/subscription.ws.js";
-import { ApiError } from "@/utils/constants/ApiError.js";
-import { decodeIndexPacket, decodePackets, decodeQuotePacket } from "@/utils/helper/binary.js";
+import { ApiError } from "@/utils/response/error.js";
+import { decodeIndexPacket, decodePackets, decodeQuotePacket } from "@/utils/parsers/binary.js";
 import { isMarketOpen } from "@/jobs/websocket.job.js";
 
 let mstockSocket: WebSocket | null = null;

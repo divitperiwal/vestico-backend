@@ -1,11 +1,11 @@
-import { ApiError } from "@/utils/constants/ApiError";
-import { BrokerService } from "../broker.service";
-import { generateTOTP } from "@/utils/helper/totp";
-import { MstockClient } from "@/lib/mstock-client";
-import { getMiraeTokenExpiry } from "@/utils/helper/expiry";
-import { BrokerCache } from "@/cache/broker.cache";
+import { ApiError } from "@/utils/response/error";
+import { BrokerService } from "@/modules/broker/broker.service";
+import { generateTOTP } from "@/utils/security/totp";
+import { MstockClient } from "@/integrations/mstock/mstock-client";
+import { getMiraeTokenExpiry } from "@/utils/parsers/expiry";
+import { BrokerCache } from "@/modules/broker/broker.cache";
 import { MarketCache } from "@/cache/market.cache";
-import { parseInstruments } from "@/utils/constants/csv-parse";
+import { parseInstruments } from "@/utils/parsers/csv-parse";
 
 export const MstockService = {
   generateAccessToken: async (userId: string) => {
@@ -15,6 +15,8 @@ export const MstockService = {
 
     const totp = generateTOTP(totpKey);
     const accessToken = await MstockClient.getAccessToken(apiKey, totp);
+
+    if (!accessToken) throw new ApiError('Failed to generate access token', 500);
 
     const expiry = getMiraeTokenExpiry()
 
@@ -56,7 +58,17 @@ export const MstockService = {
     return funds;
   },
 
-  getPosition: async (userId: string, apiKey: string, token: string) => {
+  getPositions: async (userId: string, apiKey: string, token: string) => {
+    const cached = await BrokerCache.getPositions(userId);
+    if (cached) return cached;
+
+    if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
+
+    const positions = await MstockClient.getPositions(apiKey, token);
+    BrokerCache.storePositions(userId, positions);
+
+    return positions;
+
   },
 
   //Universal Data Related Functions

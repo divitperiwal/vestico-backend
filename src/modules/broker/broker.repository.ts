@@ -1,10 +1,9 @@
 import { db } from '@/config/database.config.js';
 import { broker_credentials } from '@/database/schema/broker_credentials.schema.js';
 import { eq } from 'drizzle-orm';
-import { ApiError } from '@/utils/constants/ApiError.js';
 
 export class BrokerDatabase {
-  static async getCredentials(userId: string) {
+  static async getCredentials(userId: string) : Promise<{ credentials: string | null} | null> {
     const [result] = await db
       .select({
         credentials: broker_credentials.credentials,
@@ -12,8 +11,7 @@ export class BrokerDatabase {
       .from(broker_credentials)
       .where(eq(broker_credentials.userId, userId))
       .limit(1);
-    if (!result) return null;
-    return result;
+    return result ?? null;
   }
 
   static async storeCredentials(userId: string, credentials: string) {
