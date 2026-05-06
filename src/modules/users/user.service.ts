@@ -2,7 +2,7 @@ import { UserCache } from '@/modules/users/user.cache.js';
 import { UserRepository } from './user.repository.js';
 import { ApiError } from '@/utils/response/error.js';
 import { comparePassword, hashPassword } from '@/utils/security/hashing.js';
-import { StrategyClient } from '@/integrations/strategy/strategy-client.js';
+import { StrategyClient } from '@/integrations/strategy/strategy.client.js';
 
 
 export const UserService = {

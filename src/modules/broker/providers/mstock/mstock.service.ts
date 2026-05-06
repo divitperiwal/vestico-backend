@@ -1,7 +1,7 @@
 import { ApiError } from "@/utils/response/error";
 import { BrokerService } from "@/modules/broker/broker.service";
 import { generateTOTP } from "@/utils/security/totp";
-import { MstockClient } from "@/integrations/mstock/mstock-client";
+import { MstockClient } from "@/integrations/mstock/mstock.client";
 import { getMiraeTokenExpiry } from "@/utils/parsers/expiry";
 import { BrokerCache } from "@/modules/broker/broker.cache";
 import { MarketCache } from "@/cache/market.cache";

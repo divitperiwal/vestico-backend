@@ -1,7 +1,7 @@
 import { ApiError } from "@/utils/response/error";
 import { BrokerService } from "@/modules/broker/broker.service";
 import { generateTOTP } from "@/utils/security/totp";
-import { DhanClient } from "@/integrations/dhan/dhan-client";
+import { DhanClient } from "@/integrations/dhan/dhan.client";
 import { BrokerCache } from "@/modules/broker/broker.cache";
 
 export const DhanService = {
