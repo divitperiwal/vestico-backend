@@ -1,7 +1,7 @@
 import { asyncHandler } from '@/utils/response/async.js';
 import { clearCsrfCookie, clearSessionCookie, readSessionCookie } from '@/utils/response/cookies.js';
 import { sendSuccess } from '@/utils/response/response.js';
-import { LoginUserSchema } from '@/types/validation/auth.validation.js';
+import { LoginUserSchema } from './auth.validation';
 import { AuthService } from '@/modules/auth/auth.service.js';
 import type { Request, Response } from 'express';
 
