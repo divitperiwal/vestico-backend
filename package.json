@@ -7,6 +7,7 @@
     "dev": "bun --watch src/server.ts",
     "start": "bun src/server.ts",
     "db:migrate": "drizzle-kit migrate",
+    "db:up" : "docker compose up postgres redis",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
