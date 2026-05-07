@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { strategyEnum, brokerEnum } from '@/database/schema/enums.schema.js';
+import { strategyEnum } from '@/database/schema/enums.schema.js';
 
 export const UserParamsSchema = z
   .object({
@@ -18,10 +18,9 @@ export const UpdateUserParamsSchema = z
 export const DhanCredentialsSchema = z
   .object({
     clientId: z.string().min(1, 'Client ID cannot be empty').trim().optional(),
-    apiKey: z.string().min(1, 'API Key cannot be empty').trim().optional(),
-    apiSecret: z.string().min(1, 'Secret Key cannot be empty').trim().optional(),
+    pin: z.string().min(1, 'PIN cannot be empty').trim().optional(),
+    totpKey: z.string().min(1, 'TOTP Key cannot be empty').trim().optional(),
   })
-  .strict();
 
 export const MstockCredentialsSchema = z
   .object({

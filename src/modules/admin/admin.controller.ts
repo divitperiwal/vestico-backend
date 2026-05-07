@@ -1,71 +1,69 @@
-import { asyncHandler } from '@/utils/constants/asyncHandler.js';
+import { asyncHandler } from '@/utils/response/async.js';
 import { AdminService } from './admin.service.js';
-import { sendSuccess } from '@/utils/helper/response.js';
-import {
-  DhanCredentialsSchema,
-  MstockCredentialsSchema,
-  UpdateUserParamsSchema,
-  UserParamsSchema,
-} from '@/types/validation/admin.validation.js';
+import { sendSuccess } from '@/utils/response/response.js';
+import { DhanCredentialsSchema, MstockCredentialsSchema, UpdateUserParamsSchema, UserParamsSchema } from '@/types/validation/admin.validation.js';
 import { RegisterUserSchema } from '@/types/validation/auth.validation.js';
 
-export const handleRegisterUser = asyncHandler(async (req, res) => {
-  const { username, email, password, name , broker, strategy} = RegisterUserSchema.parse(req.body);
-  const register = await AdminService.registerUser(username, email , password, name, broker, strategy);
-  return sendSuccess(res, 201, 'User Registered Successfully', register);
-});
+export const AdminController = {
+  registerUser: asyncHandler(asyncHandler(async (req, res) => {
+    const { username, email, password, name, broker, strategy } = RegisterUserSchema.parse(req.body);
+    const register = await AdminService.registerUser(username, email, password, name, broker, strategy);
+    return sendSuccess(res, 201, 'User Registered Successfully', register);
+  })),
 
-export const handleGetAllUsers = asyncHandler(async (req, res) => {
-  const users = await AdminService.getAllUsers();
-  return sendSuccess(res, 200, 'Users fetched successfully', users);
-});
+  getAllUsers: asyncHandler(async (req, res) => {
+    const users = await AdminService.getAllUsers();
+    return sendSuccess(res, 200, 'Users fetched successfully', users);
+  }),
 
-export const handleGetUser = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  const user = await AdminService.getUser(userId);
-  return sendSuccess(res, 200, 'User fetched successfully', user);
-});
+  getUser: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    const user = await AdminService.getUser(userId);
+    return sendSuccess(res, 200, 'User fetched successfully', user);
+  }),
 
-export const handleUpdateUser = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  const updateData = UpdateUserParamsSchema.parse(req.body);
-  await AdminService.updateUser(userId, updateData);
-  return sendSuccess(res, 200, 'User updated successfully');
-});
+  updateUser: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    const updateData = UpdateUserParamsSchema.parse(req.body);
+    await AdminService.updateUser(userId, updateData);
+    return sendSuccess(res, 200, 'User updated successfully');
+  }),
 
-export const handleGetBrokerCredentials = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  const credentials = await AdminService.isCredentialsPresent(userId);
-  return sendSuccess(res, 200, 'Broker credentials fetched successfully', { present: credentials });
-});
+  getBrokerCredentials: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    const credentials = await AdminService.isCredentialsPresent(userId);
+    return sendSuccess(res, 200, 'Broker credentials fetched successfully', { present: credentials });
+  }),
 
-export const handleUpdateBrokerCredentials = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  const broker = await AdminService.getUserBroker(userId);
+  updateBrokerCredentials: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    const broker = await AdminService.getUserBroker(userId);
 
-  let updateData;
-  switch (broker) {
-    case 'dhan':
-      updateData = DhanCredentialsSchema.parse(req.body);
-      break;
+    let updateData;
+    switch (broker) {
+      case 'dhan':
+        updateData = DhanCredentialsSchema.parse(req.body);
+        break;
 
-    case 'mstock':
-      updateData = MstockCredentialsSchema.parse(req.body);
-      break;
-  }
-  await AdminService.updateBrokerCredentials(userId, updateData);
-  return sendSuccess(res, 200, 'Broker credentials updated successfully');
-});
+      case 'mstock':
+        updateData = MstockCredentialsSchema.parse(req.body);
+        break;
+    }
+    await AdminService.updateBrokerCredentials(userId, updateData);
+    return sendSuccess(res, 200, 'Broker credentials updated successfully');
+  }),
 
-export const handleRevokeSessionAdmin = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  await AdminService.revokeUserSession(userId);
-  return sendSuccess(res, 200, 'User sessions revoked successfully');
-});
+  revokeSession: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    await AdminService.revokeUserSession(userId);
+    return sendSuccess(res, 200, 'User sessions revoked successfully');
+  }),
 
-export const handleGetUserPortfolio = asyncHandler(async (req, res) => {
-  const { id: userId } = UserParamsSchema.parse(req.params);
-  const portfolio = await AdminService.getUserPortfolio(userId);
-  return sendSuccess(res, 200, 'User portfolio fetched successfully', portfolio);
-});
+  getUserPortfolio: asyncHandler(async (req, res) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    const portfolio = await AdminService.getUserPortfolio(userId);
+    return sendSuccess(res, 200, 'User portfolio fetched successfully', portfolio);
+  })
+
+}
 

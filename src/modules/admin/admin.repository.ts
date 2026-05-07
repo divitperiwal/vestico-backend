@@ -4,18 +4,18 @@ import { type Broker, type Strategy } from '@/database/schema/enums.schema.js';
 import { etf } from '@/database/schema/etf.schema.js';
 import { sessions } from '@/database/schema/session.schema.js';
 import { users } from '@/database/schema/user.schema.js';
-import { ApiError } from '@/utils/constants/ApiError.js';
+import { ApiError } from '@/utils/response/error.js';
 import { eq } from 'drizzle-orm';
 
-export class AdminDatabase {
-  static async createUser(
+export const AdminDatabase = {
+  createUser: async (
     username: string,
     email: string,
     password: string,
     name: string,
     broker: Broker,
     strategy: Strategy,
-  ) {
+  ) => {
     return await db.transaction(async (tx) => {
       const [user] = await tx
         .insert(users)
@@ -30,8 +30,7 @@ export class AdminDatabase {
         .returning({
           userId: users.userId,
         });
-      if (!user) throw new ApiError('User with given username or email already exists', 409);
-
+      if (!user) throw new ApiError('User with the same username or email already exists', 409);
       await tx.insert(broker_credentials).values({
         userId: user.userId,
         broker: broker,
@@ -39,8 +38,8 @@ export class AdminDatabase {
       });
       return user;
     });
-  }
-  static async getAllUsers() {
+  },
+  getAllUsers: async () => {
     const result = await db
       .select({
         userId: users.userId,
@@ -54,11 +53,11 @@ export class AdminDatabase {
       })
       .from(users)
       .leftJoin(broker_credentials, eq(users.userId, broker_credentials.userId));
-    if (result.length === 0) throw new ApiError('No users found', 404);
-    return result;
-  }
 
-  static async getUser(userId: string) {
+    return result.length > 0 ? result : null;
+  },
+
+  getUser: async (userId: string) => {
     const [result] = await db
       .select({
         userId: users.userId,
@@ -72,15 +71,16 @@ export class AdminDatabase {
       .from(users)
       .leftJoin(broker_credentials, eq(users.userId, broker_credentials.userId))
       .where(eq(users.userId, userId));
-    if (!result) throw new ApiError('User not found', 404);
-    return result;
-  }
 
-  static async updateUser(userId: string, updateData: object) {
+    return result ?? null;
+  },
+
+  updateUser: async (userId: string, updateData: object) => {
     await db.update(users).set(updateData).where(eq(users.userId, userId));
-  }
+    return;
+  },
 
-  static async getBrokerCredentials(userId: string) {
+  getBrokerCredentials: async (userId: string) => {
     const [result] = await db
       .select({
         broker: broker_credentials.broker,
@@ -90,12 +90,10 @@ export class AdminDatabase {
       .from(broker_credentials)
       .where(eq(broker_credentials.userId, userId));
 
-    if (!result) throw new ApiError('Broker credentials not found', 404);
+    return result ?? null;
+  },
 
-    return result;
-  }
-
-  static async updateBrokerCredentials(userId: string, credentials: string) {
+  updateBrokerCredentials: async (userId: string, credentials: string) => {
     await db
       .update(broker_credentials)
       .set({
@@ -103,23 +101,15 @@ export class AdminDatabase {
         updatedAt: new Date(),
       })
       .where(eq(broker_credentials.userId, userId));
-
     return;
-  }
+  },
 
-  static async revokeUserSession(userId: string) {
-    await db.delete(sessions).where(eq(sessions.userId, userId));
-
-    return;
-  }
-
-  static async getETFUniverse() {
+  getETFUniverse: async () => {
     const result = await db.select().from(etf);
-    if (result.length === 0) throw new ApiError('No ETFs found', 404);
-    return result;
-  }
+    return result.length > 0 ? result : null;
+  },
 
-  static async addETF(ticker: string, name: string, underlyingAsset: string | null) {
+  addETF: async (ticker: string, name: string, underlyingAsset: string | null) => {
     await db.insert(etf).values({
       ticker,
       name,
