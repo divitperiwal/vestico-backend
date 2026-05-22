@@ -1,8 +1,7 @@
 import { asyncHandler } from '@/utils/response/async.js';
 import { AdminService } from './admin.service.js';
 import { sendSuccess } from '@/utils/response/response.js';
-import { DhanCredentialsSchema, MstockCredentialsSchema, UpdateUserParamsSchema, UserParamsSchema } from '@/types/validation/admin.validation.js';
-import { RegisterUserSchema } from '@/types/validation/auth.validation.js';
+import { DhanCredentialsSchema, MstockCredentialsSchema, UpdateUserParamsSchema, UserParamsSchema, RegisterUserSchema } from './admin.validation.js';
 
 export const AdminController = {
   registerUser: asyncHandler(asyncHandler(async (req, res) => {

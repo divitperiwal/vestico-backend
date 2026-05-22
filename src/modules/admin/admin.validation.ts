@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { strategyEnum } from '@/database/schema/enums.schema.js';
 
+export const RegisterUserSchema = z
+  .object({
+    username: z.string().min(2, 'Username must be at least 2 characters long').max(100, 'Username is too long').trim().regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+    email: z.email('Invalid email address').trim(),
+    password: z.string().min(6, 'Password must be at least 6 characters long').max(100, 'Password is too long'),
+    name: z.string().min(1, 'Name cannot be empty').max(50, 'Name is too long').trim(),
+    broker: z.enum(['dhan', 'mstock'], 'Invalid broker'),
+    strategy: z.enum(strategyEnum.enumValues, 'Invalid strategy'),
+  })
 export const UserParamsSchema = z
   .object({
     id: z.uuid('Invalid user ID').trim(),
