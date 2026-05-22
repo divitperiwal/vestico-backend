@@ -11,7 +11,7 @@ export const MstockController = {
     const { apiKey, accessToken } = req
     if (!userId || !apiKey || !accessToken) throw new ApiError("Missing required parameters", 400)
 
-    const portfolio = await MstockService.getPortfolio(apiKey, accessToken, userId)
+    const portfolio = await MstockService.getPortfolio(userId, apiKey, accessToken)
     sendSuccess(res, 200, "Fetched Portfolio Successfully", portfolio)
   }),
 
@@ -20,7 +20,7 @@ export const MstockController = {
     const { apiKey, accessToken } = req
     if (!userId || !apiKey || !accessToken) throw new ApiError("Missing required parameters", 400)
 
-    const positions = await MstockService.getPositions(apiKey, accessToken, userId)
+    const positions = await MstockService.getPositions(userId, apiKey, accessToken)
     sendSuccess(res, 200, "Fetched Positions Successfully", positions)
   }),
 
@@ -29,7 +29,7 @@ export const MstockController = {
     const { apiKey, accessToken } = req
     if (!userId || !apiKey || !accessToken) throw new ApiError("Missing required parameters", 400)
 
-    const funds = await MstockService.getFunds(apiKey, accessToken, userId)
+    const funds = await MstockService.getFunds(userId, apiKey, accessToken)
     sendSuccess(res, 200, "Fetched Funds Successfully", funds)
   }),
 
