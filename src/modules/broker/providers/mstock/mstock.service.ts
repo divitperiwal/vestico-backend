@@ -4,7 +4,8 @@ import { generateTOTP } from "@/utils/security/totp";
 import { MstockClient } from "@/integrations/mstock/mstock.client";
 import { getMiraeTokenExpiry } from "@/utils/parsers/expiry";
 import { BrokerCache } from "@/modules/broker/broker.cache";
-import { MarketCache } from "@/cache/market.cache";
+import { MarketCache } from "@/modules/market/market.cache";
+import { InstrumentCache } from "@/modules/market/instrument.cache";
 import { parseInstruments } from "@/utils/parsers/csv-parse";
 
 export const MstockService = {
@@ -88,7 +89,7 @@ export const MstockService = {
   },
 
   getTopMovers: async (apiKey: string, token: string) => {
-    const cached = await MarketCache.get("movers");
+    const cached = await MarketCache.getTopMovers();
     if (cached) return cached;
 
     if (!token || !apiKey) throw new ApiError('Access Token or API Key not found', 401);
@@ -101,7 +102,7 @@ export const MstockService = {
 
     const movers = { gainers, losers };
 
-    MarketCache.set("movers", movers, 900);
+    MarketCache.setTopMovers(movers);
     return { gainers, losers };
 
   },
@@ -111,7 +112,10 @@ export const MstockService = {
 
     const response = await MstockClient.getInstruments(apiKey, token);
     const data = parseInstruments(response);
-    if (!data) throw new ApiError('Failed to parse instruments data', 500);
+
+    if (!data || data.length === 0) throw new ApiError('Failed to parse instruments', 500);
+
+    await InstrumentCache.setInstruments(data);
     return data;
   },
 
