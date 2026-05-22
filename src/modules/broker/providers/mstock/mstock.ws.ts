@@ -2,7 +2,7 @@ import WebSocket from "ws";
 import { subscriptionManager } from "@/modules/market/subscription.ws.js";
 import { ApiError } from "@/utils/response/error.js";
 import { decodeIndexPacket, decodePackets, decodeQuotePacket } from "@/utils/parsers/binary.js";
-import { isMarketOpen } from "@/jobs/websocket.job.js";
+import { isMarketOpen } from "@/utils/helpers/market-open.js";
 
 let mstockSocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
