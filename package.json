@@ -6,8 +6,19 @@
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "start": "bun src/server.ts",
+
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:up" : "docker compose up postgres redis",
+    "db:push": "drizzle-kit push",
+    "db:seed": "bun src/database/seeds/seed.ts",
+
+    "docker:dev" : "docker compose up -d postgres redis",
+    "docker:dev:down" : "docker compose down",
+    "docker:prod": "docker-compose -f docker-compose.yml up --build -d",
+    "docker:prod:down": "docker-compose -f docker-compose.yml down",
+
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
