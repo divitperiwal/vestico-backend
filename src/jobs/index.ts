@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { isMarketOpen } from "@/utils/helpers/market-open";
-import { runLoadAccessToken, runLoadInstruments } from "./mstock.job";
+import { runHydrateInstruments, runLoadAccessToken, runLoadInstruments } from "./mstock.job";
 import { runConnectWebSocket, runDisconnectWebSocket } from "./websocket.job";
 
 const IST = { timezone: "Asia/Kolkata" };
@@ -18,7 +18,7 @@ const safeRun = async (name: string, fn: () => Promise<void> | void) => {
 export const initJobs = async () => {
     try {
         if (isMarketOpen()) await runConnectWebSocket();
-        await runLoadInstruments();
+        await runHydrateInstruments();
 
         console.log("[job:init] Completed");
     } catch (error) {
