@@ -117,4 +117,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+#seed
+src/database/seed/prod/*
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
