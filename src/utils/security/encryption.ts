@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { ApiError } from '../response/error';
 
 const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY as string, 'hex');
 const IV_LENGTH = 16;
@@ -15,6 +16,7 @@ export const encryptData = (data: string) => {
 
 export const decryptData = (encryptedData: string) => {
   const [ivHex, authTagHex, encryptedHex] = encryptedData.split(':');
+  if (!ivHex || !authTagHex || !encryptedHex) throw new ApiError('Invalid encrypted data format', 400);
   const iv = Buffer.from(ivHex, 'hex');
   const authTag = Buffer.from(authTagHex, 'hex');
   const encryptedText = Buffer.from(encryptedHex, 'hex');

@@ -25,12 +25,12 @@ export function generateTOTP(secretBase32: string, timeStep = 30, digits = 6) {
 
   const hmac = crypto.createHmac('sha1', key).update(counterBuffer).digest();
 
-  const offset = hmac[hmac.length - 1] & 0xf;
+  const offset = hmac[hmac.length - 1]! & 0xf;
   const code =
-    ((hmac[offset] & 0x7f) << 24) |
-    ((hmac[offset + 1] & 0xff) << 16) |
-    ((hmac[offset + 2] & 0xff) << 8) |
-    (hmac[offset + 3] & 0xff);
+    ((hmac[offset]! & 0x7f) << 24) |
+    ((hmac[offset + 1]! & 0xff) << 16) |
+    ((hmac[offset + 2]! & 0xff) << 8) |
+    (hmac[offset + 3]! & 0xff);
 
   return (code % 10 ** digits).toString().padStart(digits, '0');
 }

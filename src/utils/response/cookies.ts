@@ -29,7 +29,7 @@ export const readCsrfCookie = (cookieHeader?: string): string | null => {
   const cookies = Object.fromEntries(
     cookieHeader.split(';').map((c) => {
       const [key, value] = c.split('=');
-      return [key.trim(), value?.trim()];
+      return [key?.trim(), value?.trim()];
     })
   );
 
