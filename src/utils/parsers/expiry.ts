@@ -17,6 +17,7 @@ export const getMiraeTokenExpiry = () => {
 };
 
 export const calculateTimeToExpiry = (expiry: Date) => {
+  if(!expiry) return null;
   const now = Date.now();
   const diffMs = (new Date(expiry)).getTime() - now;
   const timeDifference = Math.max(0, Math.floor(diffMs / 1000));

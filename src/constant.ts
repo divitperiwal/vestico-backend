@@ -19,7 +19,7 @@ export const SESSION_DURATION_MS = 12 * 60 * 60 * 1000;
 export const CSRF_COOKIE_NAME = 'csrf_token';
 export const CSRF_HEADER_NAME = 'x-csrf-token';
 
-export const DEFAULT_USERID = '9cda69d0-3387-4e11-a162-5c0082d19b3c';
+export const DEFAULT_USERID = process.env.DEFAULT_USER_ID as string;
 
 export const CUSTOM_INSTRUMENTS: Instrument[] = [
     { token: 26501, ticker: "INDEX2NSETEST", name: "INDEX2 NSETEST" },

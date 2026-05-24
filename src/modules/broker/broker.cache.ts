@@ -7,7 +7,7 @@ export const BrokerCache = {
   },
   storeCredentials: async (userId: string, data: string, expiry: string) => {
     const ttl = calculateTimeToExpiry(new Date(expiry));
-    if (ttl <= 0 || ttl == null) return;
+    if (!ttl || ttl <= 0) return;
     await redis.setex(`broker:credentials:${userId}`, ttl, data);
   },
   delCredentials: async (userId: string) => {
