@@ -3,6 +3,8 @@ import { DhanService } from "@/modules/broker/providers/dhan/dhan.service";
 import { MstockService } from "@/modules/broker/providers/mstock/mstock.service";
 import type { Request, Response } from "express";
 import { sendSuccess } from "@/utils/response/response";
+import { DhanAdapter } from "./providers/dhan/dhan.adapter";
+import { MstockAdapter } from "./providers/mstock/mstock.adapter";
 
 export const BrokerController = {
     getPortfolio: async (req: Request, res: Response) => {
@@ -13,11 +15,13 @@ export const BrokerController = {
         switch (user.broker) {
             case 'dhan':
                 const dhan = await DhanService.getPortfolio(user.userId, req.accessToken)
-                sendSuccess(res, 200, 'Portfolio fetched successfully', dhan);
+                const dportfolio = DhanAdapter.normalizeHoldings(dhan);
+                sendSuccess(res, 200, 'Portfolio fetched successfully', dportfolio);
                 break;
             case 'mstock':
                 const mstock = await MstockService.getPortfolio(user.userId, req.apiKey!, req.accessToken)
-                sendSuccess(res, 200, 'Portfolio fetched successfully', mstock);
+                const mportfolio = MstockAdapter.normalizeHoldings(mstock);
+                sendSuccess(res, 200, 'Portfolio fetched successfully', mportfolio);
                 break;
         }
 
@@ -31,11 +35,13 @@ export const BrokerController = {
         switch (user.broker) {
             case 'dhan':
                 const dhan = await DhanService.getFunds(user.userId, req.accessToken)
-                sendSuccess(res, 200, 'Funds fetched successfully', dhan);
+                const dfunds = DhanAdapter.normalizeFunds(dhan);
+                sendSuccess(res, 200, 'Funds fetched successfully', dfunds);
                 break;
             case 'mstock':
                 const mstock = await MstockService.getFunds(user.userId, req.apiKey!, req.accessToken)
-                sendSuccess(res, 200, 'Funds fetched successfully', mstock);
+                const mfunds = MstockAdapter.normalizeFunds(mstock);
+                sendSuccess(res, 200, 'Funds fetched successfully', mfunds);
                 break;
         }
         return;
