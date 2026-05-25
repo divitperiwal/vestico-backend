@@ -1,5 +1,4 @@
 import redis from '@/config/redis.config.js';
-import { calculateTimeToExpiry } from '@/utils/parsers/expiry.js';
 
 export const AuthCache = {
   getSession: (sessionId: string) => {
@@ -7,9 +6,9 @@ export const AuthCache = {
     return redis.get(key);
   },
 
-  storeSession: (sessionId: string, userId: string, expiresAt: Date) => {
+  storeSession: (sessionId: string, userId: string, ttl: number) => {
     const key = `session:${sessionId}`;
-    return redis.setex(key, calculateTimeToExpiry(expiresAt), userId);
+    return redis.setex(key, ttl, userId);
   },
 
   revokeSession: (sessionId: string) => {
