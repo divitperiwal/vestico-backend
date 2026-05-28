@@ -37,5 +37,7 @@ export const MstockAdapter = {
             utilized: Number(data.AMOUNT_UTILIZED),
             receivable: Number(data.RECEIVABLES),
         } as Funds;
-    }
+    },
+
+    normalizePositions: (data: any) => { return data }
 }
