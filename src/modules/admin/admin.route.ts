@@ -22,4 +22,10 @@ userRouter.get('/broker-credentials', AdminController.getBrokerCredentials);
 userRouter.patch('/broker-credentials', AdminController.updateBrokerCredentials);
 userRouter.get('/portfolio', AdminController.getUserPortfolio);
 
+
+//Additional Admin Routes
+router.get('/reports/:day', AdminController.getReports);
+router.get('/recommendation/:id', AdminController.getUserRecommendation);
+router.post('/generate/report', AdminController.generateReport);
+
 export default router;

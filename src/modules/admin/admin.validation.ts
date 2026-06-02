@@ -37,3 +37,12 @@ export const MstockCredentialsSchema = z
     totpKey: z.string().min(1, 'TOTP Key cannot be empty').trim().optional(),
   })
   .strict();
+
+export const GetDaySchema = z.object({
+  day: z.enum(["wednesday", "friday"]),
+})
+
+export const GenerateReportSchema = z.object({
+  day: z.enum(["wednesday", "friday"]),
+  date: z.date('Invalid date format'),
+})

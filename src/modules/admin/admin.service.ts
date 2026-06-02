@@ -8,6 +8,8 @@ import { DhanService } from '@/modules/broker/providers/dhan/dhan.service.js';
 import { MstockService } from '@/modules/broker/providers/mstock/mstock.service.js';
 import type { Broker, Strategy } from '@/database/schema/enums.schema.js';
 import { hashPassword } from '@/utils/security/hashing.js';
+import { StrategyClient } from '@/integrations/strategy/strategy.client.js';
+import { UserService } from '../users/user.service.js';
 
 export const AdminService = {
 
@@ -136,6 +138,25 @@ export const AdminService = {
       default:
         throw new ApiError('Unsupported broker', 400);
     }
+  },
+
+  getReports: async (day: string) => {
+    if (!day) throw new ApiError('Day parameter is required', 400);
+    const reports = await StrategyClient.getReports(day);
+    return reports;
+  },
+
+  getUserRecommendation: async (userId: string) => {
+    if (!userId) throw new ApiError('User ID is required', 400);
+    const recommendations = await UserService.getRecommendation(userId);
+    return recommendations;
+  },
+
+  generateReport: async (day: string, date: Date) => {
+    if (!day) throw new ApiError('Day parameter is required', 400);
+    if (!date) throw new ApiError('Date parameter is required', 400);
+    const report = await StrategyClient.generateReport(day, date);
+    return report;
   }
 
 }
