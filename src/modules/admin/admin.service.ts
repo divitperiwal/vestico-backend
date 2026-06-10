@@ -152,7 +152,7 @@ export const AdminService = {
     return recommendations;
   },
 
-  generateReport: async (day: string, date: Date) => {
+  generateReport: async (day: string, date: string) => {
     if (!day) throw new ApiError('Day parameter is required', 400);
     if (!date) throw new ApiError('Date parameter is required', 400);
     const report = await StrategyClient.generateReport(day, date);

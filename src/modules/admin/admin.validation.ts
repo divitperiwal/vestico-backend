@@ -44,5 +44,5 @@ export const GetDaySchema = z.object({
 
 export const GenerateReportSchema = z.object({
   day: z.enum(["wednesday", "friday"]),
-  date: z.date('Invalid date format'),
+  date: z.string().regex(/^\d{2}-\d{2}-\d{4}$/, 'Date must be in DD-MM-YYYY format'),
 })
