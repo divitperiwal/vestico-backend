@@ -7,6 +7,7 @@ export const filterPortfolio = async (portfolio: Portfolio) => {
     const etfList = await StrategyClient.getETFList();
     if (!etfList) throw new ApiError('ETF list not found', 404);
 
-    const filteredPortfolio = portfolio.holdings.filter(holding => (holding.type === 'etf' && etfList.includes(holding.symbol))).map(holding => holding.symbol);
+    const etfs = etfList.map((etf: any) => etf.ticker);
+    const filteredPortfolio = portfolio.holdings.filter(holding => (holding.type === 'etf' && etfs.includes(holding.symbol))).map(holding => holding.symbol);
     return filteredPortfolio
 }
