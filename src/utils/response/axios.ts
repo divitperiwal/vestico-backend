@@ -5,7 +5,7 @@ import axios from "axios";
 const attachErrorInterceptor = (client: AxiosInstance, message: string): AxiosInstance => {
     client.interceptors.response.use(
         (response) => response,
-        (error) => Promise.reject(new ApiError(message, 500, { cause: error }))
+        (error) => { throw new ApiError(error.response.statusText || message, error.response?.status || 500, error.response?.data || null); }
     );
     return client;
 }
