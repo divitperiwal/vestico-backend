@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import type { Response } from 'express';  
+import type { Response } from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { corsOptions } from '@/constant';
@@ -10,7 +10,7 @@ import userRoutes from '@/modules/users/user.route';
 import dhanRoutes from '@/modules/broker/providers/dhan/dhan.route';
 import mstockRoutes from '@/modules/broker/providers/mstock/mstock.route';
 import brokerRoutes from '@/modules/broker/broker.route';
-// import bffRoutes from '@/modules/bff/bff.route';
+import bffRoutes from '@/bff/bff.route';
 import { sendSuccess } from '@/utils/response/response';
 import { errorHandler, notFound } from '@/middlewares/error.middleware';
 import statusMonitor from 'express-status-monitor';
@@ -36,7 +36,7 @@ app.get('/health', (_, res: Response) => {
 
 
 //BFF Routes
-// app.use('/api/v1/bff', bffRoutes);
+app.use('/api/v1/bff', bffRoutes);
 //Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
