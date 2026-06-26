@@ -10,6 +10,7 @@ import type { Broker, Strategy } from '@/database/schema/enums.schema.js';
 import { hashPassword } from '@/utils/security/hashing.js';
 import { StrategyClient } from '@/integrations/strategy/strategy.client.js';
 import { UserService } from '../users/user.service.js';
+import { BrokerCache } from '../broker/broker.cache.js';
 
 export const AdminService = {
 
@@ -117,27 +118,26 @@ export const AdminService = {
 
     //Encrypt Credentials
     await BrokerService.storeCredentials(userId, newCredentials);
+    await BrokerCache.delCredentials(userId);
   },
 
   getUserPortfolio: async (userId: string) => {
-    if (!userId) throw new ApiError('User ID is required', 400);
+    if (!userId) throw new ApiError("User ID is required", 400);
     const user = await AdminService.getUser(userId);
-    if (!user) throw new ApiError('User not found', 404);
-
-    const credentials = await AdminDatabase.getBrokerCredentials(userId);
-    if (!credentials?.credentials) throw new ApiError('Broker credentials not found', 404);
-
-    const decrypted = decryptData(credentials.credentials);
-    const result = JSON.parse(decrypted);
 
     switch (user.broker) {
-      case 'dhan':
-        return DhanService.getPortfolio(userId, result.accessToken);
-      case 'mstock':
-        return MstockService.getPortfolio(result.apiKey, result.accessToken, userId);
+      case "dhan":
+        const { accessToken: dhanAccessToken } = await DhanService.getAccessToken(userId)
+        return await BrokerService.getPortfolio(userId, user.broker, dhanAccessToken);
+
+      case "mstock":
+        const { apiKey, accessToken } = await MstockService.getAccessToken(userId)
+        return await BrokerService.getPortfolio(userId, user.broker, accessToken, apiKey);
+
       default:
-        throw new ApiError('Unsupported broker', 400);
+        throw new ApiError("Invalid broker", 400);
     }
+
   },
 
   getReports: async (day: string) => {

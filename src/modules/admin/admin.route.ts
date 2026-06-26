@@ -20,7 +20,9 @@ userRouter.patch('/', AdminController.updateUser);
 userRouter.delete('/session', AdminController.revokeSession);
 userRouter.get('/broker-credentials', AdminController.getBrokerCredentials);
 userRouter.patch('/broker-credentials', AdminController.updateBrokerCredentials);
-userRouter.get('/portfolio', AdminController.getUserPortfolio);
+userRouter.get('/recommendation', AdminController.getUserRecommendation);
+userRouter.post('/revoke-token', AdminController.revokeUserAccessToken);
+userRouter.get('/portfolio', AdminController.getUserPortfolio); 
 
 
 //Additional Admin Routes

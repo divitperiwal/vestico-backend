@@ -83,5 +83,11 @@ export const AdminController = {
     sendSuccess(res, 200, 'Report generated successfully', report);
   }),
 
+  revokeUserAccessToken: asyncHandler(async (req: Request, res: Response) => {
+    const { id: userId } = UserParamsSchema.parse(req.params);
+    await AdminService.deleteAccessToken(userId);
+    sendSuccess(res, 200, 'User access token revoked successfully');
+  })
+
 }
 
