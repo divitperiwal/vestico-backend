@@ -25,7 +25,7 @@ userRouter.get('/portfolio', AdminController.getUserPortfolio);
 
 //Additional Admin Routes
 router.get('/reports/:day', AdminController.getReports);
+router.post('/report/generate', AdminController.generateReport);
 router.get('/recommendation/:id', AdminController.getUserRecommendation);
-router.post('/generate/report', AdminController.generateReport);
 
 export default router;
